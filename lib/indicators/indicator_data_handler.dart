@@ -4,7 +4,7 @@ import 'package:kline/kline_data.dart';
 
 class IndicatorDataHandler {
 
-  static List ma(List<KLineData> klineData, List<int> periods, int beginIdx, {bool isVol=false}) {
+  static List ma(List<KLineData> klineData, List<int> periods, double beginIdx, {bool isVol=false}) {
     if (klineData.isEmpty || periods.isEmpty) return [];
 
     List<List<double>> maData = [];
@@ -27,9 +27,9 @@ class IndicatorDataHandler {
           continue;
         }
 
-        int startIdx = j > period ? j - period : 0;
+        double startIdx = j > period ? j - period : 0;
 
-        List<KLineData> sublist = klineData.sublist(startIdx, startIdx + period);
+        List<KLineData> sublist = klineData.sublist(startIdx.round(), (startIdx + period).round());
         if (sublist.isEmpty) continue;
         double sum = 0.0;
         if (isVol) {
@@ -50,7 +50,7 @@ class IndicatorDataHandler {
     return [maData, max, min];
   }
 
-  static List ema(List<KLineData> klineData, List<int> periods, int beginIdx) {
+  static List ema(List<KLineData> klineData, List<int> periods, double beginIdx) {
     if (klineData.isEmpty) return [];
 
     List<List<double>> emaData = [];
@@ -94,8 +94,8 @@ class IndicatorDataHandler {
         emaList.add(emaValue);
       }
 
-      int start = beginIdx > 0 ? beginIdx -1 : 0;
-      List<double> subList = emaList.sublist(start, start + candleCount);
+      double start = beginIdx > 0 ? beginIdx -1 : 0;
+      List<double> subList = emaList.sublist(start.round(), start.round() + candleCount);
       emaData.add(subList);
     }
     return [emaData, max, min];
@@ -124,7 +124,7 @@ class IndicatorDataHandler {
     return [];
   }
 
-  static List kdj(List<KLineData> klineData, List<int> periods, int beginIdx) {
+  static List kdj(List<KLineData> klineData, List<int> periods, double beginIdx) {
     List kdjData = [];
     if (klineData.isEmpty || periods.length != 3) return kdjData;
     int period = periods.first;
@@ -186,7 +186,7 @@ class IndicatorDataHandler {
     return res;
   }
 
-  static List wr(List<KLineData> klineData, List<int> periods, int beginIdx) {
+  static List wr(List<KLineData> klineData, List<int> periods, double beginIdx) {
     if (klineData.isEmpty || periods.isEmpty) return [];
     List<List<double>> dataList = [];
     double max = 0.0, min = 0.0;
@@ -196,9 +196,9 @@ class IndicatorDataHandler {
 
       int candleCount = KLineConfig.shared.candleCount;
       for (var i = beginIdx;i < beginIdx + candleCount; ++i) {
-        int end = i+1;
-        int start = i  < period ? 0 : i - period;
-        List<KLineData> sublist = klineData.sublist(start, end);
+        double end = i+1;
+        double start = i  < period ? 0 : i - period;
+        List<KLineData> sublist = klineData.sublist(start.round(), end.round());
         double highest = sublist.first.high;
         double lowest = sublist.first.low;
         for(var j = 1;j < sublist.length; ++j) {
@@ -206,7 +206,7 @@ class IndicatorDataHandler {
           if (subData.low < lowest) lowest = subData.low;
           if (subData.high > highest) highest = subData.high;
         }
-        double wr = (highest - klineData[i].close) / (highest - lowest) * 100;
+        double wr = (highest - klineData[i.round()].close) / (highest - lowest) * 100;
         if (wr < min || min == 0.0) min = wr;
         if (wr > max || max == 0.0) max = wr;
         wrList.add(wr);

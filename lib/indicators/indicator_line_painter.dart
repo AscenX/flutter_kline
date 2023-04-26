@@ -4,17 +4,9 @@ import 'package:kline/kline_config.dart';
 import 'package:kline/kline_data.dart';
 
 class IndicatorLinePainter  {
-  // final List<KLineData> klineData;
-  // final int beginIdx;
-  // final IndicatorType type;
-  // final List<int> periods;
-  // List<Color>? lineColors;
-
-
-  // IndicatorLinePainter(this.klineData, this.type, this.beginIdx, {this.lineColors});
 
   static void paint(Canvas canvas, Size size, double height,
-      IndicatorType type, List<List<double>> dataList, List<int> periods, int beginIdx,
+      IndicatorType type, List<List<double>> dataList, List<int> periods, double beginIdx, double slideOffset,
       double max, double min, {double top = 0.0, List<Color> lineColors = const [], double infoTopOffset = 0.0}) {
     if (periods.isEmpty) return;
     if (lineColors.isEmpty) lineColors = KLineConfig.shared.indicatorColors;
@@ -26,12 +18,11 @@ class IndicatorLinePainter  {
     double candleW = KLineConfig.candleWidth(width);
     int candleCount = KLineConfig.shared.candleCount;
 
-    // 最高最低差
+
     double valueOffset = max - min;
     double indicatorX = spacing + candleW * 0.5;
 
     List<String> maInfoList = [];
-
     for (int idx = 0;idx < periods.length; ++idx) {
       if (dataList.isEmpty) return;
       if (dataList.length == idx) continue;
@@ -54,13 +45,13 @@ class IndicatorLinePainter  {
 
         if (dataList[idx].isEmpty) return;
 
-        double value = dataList[idx][i-beginIdx];
+        double value = dataList[idx][(i-beginIdx).round()];
         if (value < 0) continue;
         lastValue = value;
         double indicatorY = height * (1 - (value - min) / valueOffset) + top;
         if (!type.isMain) indicatorY += KLineConfig.shared.indicatorInfoHeight;
 
-        indicatorX = (i - beginIdx - 1) * (candleW + spacing) + candleW * 0.5;
+        indicatorX = (i - beginIdx - 1) * (candleW + spacing) + candleW * 0.5 + slideOffset;
 
         if (lastX == 0.0 && lastY == 0.0) {
           lastX = indicatorX;

@@ -7,24 +7,23 @@ import 'package:kline/indicators/indicator_data_handler.dart';
 
 class VolPainter  {
   final List<KLineData> klineData;
-  final int beginIdx;
+  final double beginIdx;
 
   VolPainter(this.klineData, this.beginIdx);
 
+  final riseRectPaint = Paint()
+    ..style = PaintingStyle.fill
+    ..color = Colors.green
+    ..isAntiAlias = true;
 
-  void paint(Canvas canvas, Size size, double max) {
+  final fallRectPaint = Paint()
+    ..style = PaintingStyle.fill
+    ..color = Colors.red
+    ..isAntiAlias = true;
+
+
+  void paint(Canvas canvas, Size size, double max, double slideOffset) {
     if (klineData.isEmpty) return;
-
-    var riseRectPaint = Paint()
-      ..style = PaintingStyle.fill
-      ..color = Colors.green
-      ..isAntiAlias = true;
-
-    var fallRectPaint = Paint()
-      ..style = PaintingStyle.fill
-      ..color = Colors.red
-      ..isAntiAlias = true;
-
 
     double height = KLineConfig.shared.subIndicatorHeight;
     double width = size.width;
@@ -34,7 +33,7 @@ class VolPainter  {
     int candleCount = KLineConfig.shared.candleCount;
 
     double min = 0.0;
-    // 计算MA线
+    // calculated MA volume
     List<int> maPeriods = KLineConfig.shared.volMaPeriods;
     List maDataList = IndicatorDataHandler.ma(klineData, maPeriods, beginIdx, isVol: true);
     List<List<double>> maList = [];
@@ -47,34 +46,34 @@ class VolPainter  {
       // if (maMin < min) min = maMin;
     }
 
-    // 最高最低差
     double valueOffset = max;
     double rectLeft = spacing;
 
     List showSubIndicators = KLineConfig.shared.showSubIndicators;
     int subIndicatorCount = showSubIndicators.length;
 
-    double originY = size.height;
+    double originBtm = size.height;
     if (subIndicatorCount == 2 && showSubIndicators.first == IndicatorType.vol) {
-        originY = size.height - KLineConfig.shared.subIndicatorHeight - KLineConfig.shared.indicatorSpacing;
+      originBtm = size.height - KLineConfig.shared.subIndicatorHeight - KLineConfig.shared.indicatorSpacing;
     }
+    // originBtm -= KLineConfig.shared.indicatorInfoHeight;
 
     for (var i = beginIdx;i < beginIdx + candleCount;++i) {
-      KLineData data = klineData[i];
+      KLineData data = klineData[i.round()];
 
       double open = data.open;
       double close = data.close;
       double volume = data.volumne;
 
-      double volumeH = height * volume / valueOffset;
+      double volumeH = (height - KLineConfig.shared.indicatorInfoHeight) * volume / valueOffset;
 
       canvas.drawRect(
-            Rect.fromLTWH(rectLeft, originY - volumeH, candleW, volumeH), close > open ? riseRectPaint : fallRectPaint);
+            Rect.fromLTWH(rectLeft + slideOffset, originBtm - volumeH, candleW, volumeH), close > open ? riseRectPaint : fallRectPaint);
 
       rectLeft += (candleW + spacing);
     }
 
-    IndicatorLinePainter.paint(canvas, Size(size.width, height), height, IndicatorType.ma, maList, maPeriods, beginIdx, max, min, top: originY - height, infoTopOffset: 15);
+    IndicatorLinePainter.paint(canvas, Size(size.width, height), height, IndicatorType.ma, maList, maPeriods, beginIdx, slideOffset, max, min, top: originBtm - height, infoTopOffset: 15);
 
   }
 

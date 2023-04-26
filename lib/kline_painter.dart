@@ -9,71 +9,71 @@ import 'package:kline/kline_data.dart';
 
 
 class KLinePainter extends CustomPainter {
+
   final List<KLineData> klineData;
-  final int beginIdx;
+  final double beginIdx;
+
+  KLinePainter(this.klineData, this.beginIdx);
 
   late double max;
   late double min;
 
-  late final IndicatorLinePainter _linePainter;
-  late final IndicatorLinePainter _subLinePainter;
+  final _riseRectPaint = Paint()
+    ..style = PaintingStyle.fill
+    ..color = Colors.green
+    ..isAntiAlias = true;
+  final _riseLinePaint = Paint()
+    ..style = PaintingStyle.stroke
+    ..color = Colors.green
+    ..isAntiAlias = true
+    ..strokeWidth = 2.0;
 
-  KLinePainter(this.klineData, this.beginIdx);
+  final _fallRectPaint = Paint()
+    ..style = PaintingStyle.fill
+    ..color = Colors.red
+    ..isAntiAlias = true;
+  final _fallLinePaint = Paint()
+    ..style = PaintingStyle.stroke
+    ..color = Colors.red
+    ..isAntiAlias = true
+    ..strokeWidth = 2.0;
 
-  // k线数据
+  final _minMaxLinePaint = Paint()
+    ..style = PaintingStyle.stroke
+    ..color = const Color(0xff999999)
+    ..isAntiAlias = true
+    ..strokeWidth = 1.0;
+
+  // draw kline
 
   @override
   void paint(Canvas canvas, Size size) {
     if (klineData.isEmpty) return;
 
-    var riseRectPaint = Paint()
-      ..style = PaintingStyle.fill
-      ..color = Colors.green
-      ..isAntiAlias = true;
-    var riseLinePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..color = Colors.green
-      ..isAntiAlias = true
-      ..strokeWidth = 2.0;
-
-    var fallRectPaint = Paint()
-      ..style = PaintingStyle.fill
-      ..color = Colors.red
-      ..isAntiAlias = true;
-    var fallLinePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..color = Colors.red
-      ..isAntiAlias = true
-      ..strokeWidth = 2.0;
 
     List showSubIndicators = KLineConfig.shared.showSubIndicators;
     int subIndicatorCount = showSubIndicators.length;
 
-    double mainHeight = size.height;
-    if (subIndicatorCount == 1) {
-      mainHeight = size.height - KLineConfig.shared.subIndicatorHeight - KLineConfig.shared.indicatorSpacing;
-    } else if (subIndicatorCount == 2) {
-      mainHeight = size.height - (KLineConfig.shared.subIndicatorHeight + KLineConfig.shared.indicatorSpacing) * 2;
-    }
+    double mainHeight = size.height - (KLineConfig.shared.subIndicatorHeight + KLineConfig.shared.indicatorSpacing) * subIndicatorCount;
     double width = size.width;
 
     double spacing = KLineConfig.shared.spacing;
     double candleW = KLineConfig.candleWidth(width);
     int candleCount = KLineConfig.shared.candleCount;
 
-    // 计算最高最低点
+    // calculating the highest lowest point
     if (beginIdx >= klineData.length) return;
-    KLineData beginData = klineData[beginIdx];
+    KLineData beginData = klineData[beginIdx.round()];
     double max = beginData.high;
     double min = beginData.low;
 
     double maxVolume = beginData.volumne;
 
-    int maxIdx = beginIdx,minIdx = beginIdx;
+    double maxIdx = beginIdx, minIdx = beginIdx;
 
     for (var i = beginIdx; i < beginIdx + candleCount; ++i) {
       if (i >= klineData.length) return;
-      final data = klineData[i];
+      final data = klineData[i.round()];
       double high = data.high;
       double low = data.low;
       if (high > max) {
@@ -133,22 +133,25 @@ class KLinePainter extends CustomPainter {
 
 
 
-    // 最高最低差
+    // offset between the highest and lowest
     double valueOffset = max - min;
 
     double rectLeft = 0.0;
 
     double maxX = 0.0, maxY = 0.0, minX = 0.0, minY = 0.0;
 
+    double indexOffset = beginIdx - beginIdx.round();
+    double slideOffset = (1 - indexOffset) * (candleW + spacing);
+
     for (var i = beginIdx;i < beginIdx + candleCount;++i) {
-      KLineData data = klineData[i];
+      KLineData data = klineData[i.round()];
 
       double open = data.open;
       double high = data.high;
       double low = data.low;
       double close = data.close;
 
-      double lineX = rectLeft + candleW * 0.5;
+      double lineX = rectLeft + candleW * 0.5 + slideOffset;
       double lineTop = mainHeight * (1 - (high - min) / valueOffset);
       double lineBtm = mainHeight * (1 - (low - min) / valueOffset);
 
@@ -164,18 +167,18 @@ class KLinePainter extends CustomPainter {
       if (close > open) {
         double candleH = (close - open) / valueOffset * mainHeight;
         double rectTop = mainHeight * (1 - (open - min) / valueOffset);
-        rectTop -= candleH; // 涨的起点在上面
+        rectTop -= candleH; // rise starts at the top
         canvas.drawRect(
-            Rect.fromLTWH(rectLeft, rectTop, candleW, candleH), riseRectPaint);
-        // 画线
-        canvas.drawLine(Offset(lineX, lineTop), Offset(lineX, lineBtm), riseLinePaint);
+            Rect.fromLTWH(rectLeft + slideOffset, rectTop, candleW, candleH), _riseRectPaint);
+        // draw line
+        canvas.drawLine(Offset(lineX, lineTop), Offset(lineX, lineBtm), _riseLinePaint);
       } else {
         double candleH = (open - close) / valueOffset * mainHeight;
         double rectTop = mainHeight * (1 - (open - min) / valueOffset);
         canvas.drawRect(
-            Rect.fromLTWH(rectLeft, rectTop, candleW, candleH), fallRectPaint);
-        // 画线
-        canvas.drawLine(Offset(lineX, lineTop), Offset(lineX, lineBtm), fallLinePaint);
+            Rect.fromLTWH(rectLeft + slideOffset, rectTop, candleW, candleH), _fallRectPaint);
+        // draw line
+        canvas.drawLine(Offset(lineX, lineTop), Offset(lineX, lineBtm), _fallLinePaint);
       }
 
       rectLeft += (candleW + spacing);
@@ -186,14 +189,14 @@ class KLinePainter extends CustomPainter {
 
     if (isShowMA || isShowEMA) {
       List<int> indicatorPeriods = isShowMA ? [7, 30] : [7, 25];
-      IndicatorLinePainter.paint(canvas, size, mainHeight, KLineConfig.shared.showMainIndicators.first, mainIndicatorData, indicatorPeriods, beginIdx, max, min, top: 0.0);
+      IndicatorLinePainter.paint(canvas, size, mainHeight, KLineConfig.shared.showMainIndicators.first, mainIndicatorData, indicatorPeriods, beginIdx, slideOffset, max, min, top: 0.0);
     }
 
     // draw sub indicator
     double indicatorH = KLineConfig.shared.subIndicatorHeight;
 
     if (KLineConfig.shared.showSubIndicators.contains(IndicatorType.vol)) {
-      VolPainter(klineData, beginIdx).paint(canvas, size, maxVolume);
+      VolPainter(klineData, beginIdx).paint(canvas, size, maxVolume, slideOffset);
     }
     // if (KLineConfig.shared.showSubIndicators.contains(IndicatorType.macd)) {
     //   MACDPainter(klineData, beginIdx).paint(canvas, size, maxVolume);
@@ -206,22 +209,17 @@ class KLinePainter extends CustomPainter {
       if (type.isLine) {
         IndicatorLinePainter.paint(canvas, size, indicatorH,
             type, subIndicatorData[type], KLineConfig.shared.currentPeriods(type),
-            beginIdx, subMax[type], subMin[type], top:subTop, lineColors: KLineConfig.shared.indicatorColors);
+            beginIdx, slideOffset, subMax[type], subMin[type], top:subTop, lineColors: KLineConfig.shared.indicatorColors);
       }
     }
 
   }
 
   void drawText(Canvas canvas, String text, Offset offset, Size canvasSize) {
-    var minMaxLinePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..color = const Color(0xff999999)
-      ..isAntiAlias = true
-      ..strokeWidth = 1.0;
 
     // 画线
     double tranOffsetX = offset.dx < canvasSize.width * 0.5 ? 20 : -20;
-    canvas.drawLine(Offset(offset.dx + (tranOffsetX > 0.0 ? 2 : -2), offset.dy), Offset(offset.dx + tranOffsetX, offset.dy), minMaxLinePaint);
+    canvas.drawLine(Offset(offset.dx + (tranOffsetX > 0.0 ? 2 : -2), offset.dy), Offset(offset.dx + tranOffsetX, offset.dy), _minMaxLinePaint);
 
     final painter = TextPainter(
         textDirection: TextDirection.ltr,

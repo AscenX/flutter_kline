@@ -11,8 +11,8 @@ class _KLineViewState extends State<KLineView> {
   late final ScrollController _klineSc;
 
   var _hasInitScrollController = false;
-  var _beginIdx = -1;
-  var _lastBeginIdx = -1;
+  var _beginIdx = -1.0;
+  var _lastBeginIdx = -1.0;
 
   var _currentScale = 1.0;
 
@@ -32,10 +32,10 @@ class _KLineViewState extends State<KLineView> {
   void _klineDidScroll(double offsetX) {
     double candleW = KLineConfig.shared.currentCandleW;
     double spacing = KLineConfig.shared.spacing;
-    int nowIdx = (offsetX / (candleW + spacing)).round();
+    double nowIdx = offsetX / (candleW + spacing);
     // print("_klineDidScroll--------- nowIdx:$nowIdx, data length:$_dataLength");
     if (nowIdx < 0) {
-      _beginIdx = 0;
+      _beginIdx = 0.0;
     } else {
         if (nowIdx + KLineConfig.shared.candleCount > _dataLength) {
           // print("00000000 return:$nowIdx, count:${KLineConfig.shared.candleCount}, dataLength: $_dataLength");
@@ -72,7 +72,7 @@ class _KLineViewState extends State<KLineView> {
     count = count < KLineConfig.shared.minCandleCount ? KLineConfig.shared.minCandleCount : count;
     // print("11111111 _currentScale:$_currentScale, count:$count");
     if (count + _beginIdx >= _dataLength) {
-      _beginIdx = _dataLength - count;
+      _beginIdx = (_dataLength - count).toDouble();
     }
     KLineConfig.shared.candleCount = count;
     setState(() {
@@ -107,7 +107,7 @@ class _KLineViewState extends State<KLineView> {
                   double contentSizeW = dataLength * (candleW + spacing);
                   if (_beginIdx < 0) { // init
                     // 展示的起始index
-                    _beginIdx = dataLength - candleCount;
+                    _beginIdx = (dataLength - candleCount).toDouble();
                     if (_beginIdx < 0) _beginIdx = 0;
                     // double beginOffset = _beginIdx / dataLength * contentSizeW;
                     double beginOffset = dataLength < candleCount ? 0.0 : contentSizeW - containerW;

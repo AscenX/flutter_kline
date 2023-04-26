@@ -1,8 +1,5 @@
-
 import 'dart:math';
-
 import 'package:flutter/material.dart';
-
 
 enum IndicatorType {
   ma(name: "MA"),
@@ -18,7 +15,7 @@ enum IndicatorType {
   bool get isMain => index < IndicatorType.vol.index;
 
   final String name;
-  final bool isLine; // 只是画线的指标
+  final bool isLine; // just need draw a line
   const IndicatorType({required this.name, this.isLine = true});
 
   factory IndicatorType.fromName(String name) {
@@ -34,7 +31,7 @@ enum IndicatorType {
 
 class KLineConfig {
 
-  bool isDebug = false;
+  bool isDebug = true;
   Color randomColor = Color.fromARGB(100, Random().nextInt(255), Random().nextInt(255), Random().nextInt(255));
   void drawDebugRect(Canvas canvas, Rect rect, Color color) {
     canvas.drawRect(rect, Paint()
@@ -43,26 +40,26 @@ class KLineConfig {
   }
 
 
-  /// 一屏默认显示的蜡烛数量
+  /// current display candle count
   int candleCount = 30;
-  /// 蜡烛之间的间距
+  /// spacing between candle
   double spacing = 2.0;
-  /// 当前蜡烛的宽度
+  /// current candle width
   double currentCandleW = 0.0;
-  /// k线图间距
+  /// kline view margin
   var klineMargin = const EdgeInsets.fromLTRB(0, 25, 0, 10);
-  /// k线蜡烛最小数量
+  /// min candle count
   int minCandleCount = 7;
-  /// k线蜡烛最大数量
+  /// max candle count
   int maxCandleCount = 39;
 
-  /// 指标之间的上下间距
+  /// spacing between indicator
   double indicatorSpacing = 10.0;
-  /// 指标信息的上间距
+  /// indicator information top margin
   double indicatorInfoTopMargin = 5.0;
-  /// 副指标的高度
+  /// sub indicator height
   double subIndicatorHeight = 50.0;
-  /// 指标信息的高度
+  /// indicator information height
   double indicatorInfoHeight = 15.0;
 
   // 主指标的展示高度 = 总高度 - 上下间距(klineMargin.vertical) - 副指标的高度 - 指标之间的间距高度
@@ -108,7 +105,7 @@ class KLineConfig {
     return candleW;
   }
 
-  // 单例
+  // singleton
   KLineConfig._internal();
   static final KLineConfig shared = KLineConfig._internal();
   factory KLineConfig() => shared;

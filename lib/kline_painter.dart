@@ -6,6 +6,7 @@ import 'package:kline/kline_config.dart';
 import 'package:kline/indicators/indicator_line_painter.dart';
 import 'package:kline/indicators/vol_painter.dart';
 import 'package:kline/kline_data.dart';
+import 'package:kline/main.dart';
 
 
 class KLinePainter extends CustomPainter {
@@ -54,8 +55,22 @@ class KLinePainter extends CustomPainter {
     List showSubIndicators = KLineConfig.shared.showSubIndicators;
     int subIndicatorCount = showSubIndicators.length;
 
-    double mainHeight = size.height - (KLineConfig.shared.subIndicatorHeight + KLineConfig.shared.indicatorSpacing) * subIndicatorCount;
+    double indicatorInfoHeight = KLineConfig.shared.indicatorInfoHeight;
+    double indicatorSpacing = KLineConfig.shared.indicatorSpacing;
+
+    double mainHeight = size.height - (KLineConfig.shared.subIndicatorHeight + indicatorSpacing) * subIndicatorCount - KLineConfig.shared.klineMargin.vertical;
+    if (KLineConfig.shared.showMainIndicators.isNotEmpty) {
+      mainHeight -= indicatorInfoHeight;
+    }
     double width = size.width;
+
+    // if (KLineConfig.shared.isDebug) {
+    //   double topMargin = KLineConfig.shared.klineMargin.top;
+    //   if (KLineConfig.shared.showMainIndicators.isNotEmpty) {
+    //     topMargin += indicatorInfoHeight;
+    //   }
+    //   KLineConfig.shared.drawDebugRect(canvas, Rect.fromLTWH(0, topMargin, width, mainHeight ), Colors.orange.withOpacity(0.3));
+    // }
 
     double spacing = KLineConfig.shared.spacing;
     double candleW = KLineConfig.candleWidth(width);
@@ -140,9 +155,8 @@ class KLinePainter extends CustomPainter {
 
     double maxX = 0.0, maxY = 0.0, minX = 0.0, minY = 0.0;
 
-    double indexOffset = beginIdx - beginIdx.round();
-    double slideOffset = (1 - indexOffset) * (candleW + spacing);
-
+    double indexOffset =  beginIdx - beginIdx.round();
+    double slideOffset = -indexOffset * (candleW + spacing);
     for (var i = beginIdx;i < beginIdx + candleCount;++i) {
       KLineData data = klineData[i.round()];
 
@@ -154,6 +168,10 @@ class KLinePainter extends CustomPainter {
       double lineX = rectLeft + candleW * 0.5 + slideOffset;
       double lineTop = mainHeight * (1 - (high - min) / valueOffset);
       double lineBtm = mainHeight * (1 - (low - min) / valueOffset);
+      if (KLineConfig.shared.showMainIndicators.isNotEmpty) {
+        lineTop += indicatorInfoHeight;
+        lineBtm += indicatorInfoHeight;
+      }
 
       if (i == maxIdx) {
         maxX = lineX;
@@ -168,6 +186,9 @@ class KLinePainter extends CustomPainter {
         double candleH = (close - open) / valueOffset * mainHeight;
         double rectTop = mainHeight * (1 - (open - min) / valueOffset);
         rectTop -= candleH; // rise starts at the top
+        if (KLineConfig.shared.showMainIndicators.isNotEmpty) {
+          rectTop += indicatorInfoHeight;
+        }
         canvas.drawRect(
             Rect.fromLTWH(rectLeft + slideOffset, rectTop, candleW, candleH), _riseRectPaint);
         // draw line
@@ -175,6 +196,9 @@ class KLinePainter extends CustomPainter {
       } else {
         double candleH = (open - close) / valueOffset * mainHeight;
         double rectTop = mainHeight * (1 - (open - min) / valueOffset);
+        if (KLineConfig.shared.showMainIndicators.isNotEmpty) {
+          rectTop += indicatorInfoHeight;
+        }
         canvas.drawRect(
             Rect.fromLTWH(rectLeft + slideOffset, rectTop, candleW, candleH), _fallRectPaint);
         // draw line
@@ -189,7 +213,7 @@ class KLinePainter extends CustomPainter {
 
     if (isShowMA || isShowEMA) {
       List<int> indicatorPeriods = isShowMA ? [7, 30] : [7, 25];
-      IndicatorLinePainter.paint(canvas, size, mainHeight, KLineConfig.shared.showMainIndicators.first, mainIndicatorData, indicatorPeriods, beginIdx, slideOffset, max, min, top: 0.0);
+      IndicatorLinePainter.paint(canvas, size, mainHeight, KLineConfig.shared.showMainIndicators.first, mainIndicatorData, indicatorPeriods, beginIdx, slideOffset, max, min, top: KLineConfig.shared.klineMargin.top);
     }
 
     // draw sub indicator
@@ -205,9 +229,9 @@ class KLinePainter extends CustomPainter {
     for (var idx = subIndicatorCount - 1;idx >= 0;--idx) {
       var type = showSubIndicators[idx];
       int orderIdx = subIndicatorCount - idx;
-      double subTop = size.height - orderIdx * (indicatorH + spacing) + spacing;
+      double subTop = size.height - orderIdx * (indicatorH + indicatorSpacing) + indicatorSpacing;
       if (type.isLine) {
-        IndicatorLinePainter.paint(canvas, size, indicatorH,
+        IndicatorLinePainter.paint(canvas, size, indicatorH - KLineConfig.shared.indicatorInfoHeight,
             type, subIndicatorData[type], KLineConfig.shared.currentPeriods(type),
             beginIdx, slideOffset, subMax[type], subMin[type], top:subTop, lineColors: KLineConfig.shared.indicatorColors);
       }

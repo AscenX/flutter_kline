@@ -58,6 +58,7 @@ class VolPainter  {
     }
     // originBtm -= KLineConfig.shared.indicatorInfoHeight;
 
+
     for (var i = beginIdx;i < beginIdx + candleCount;++i) {
       KLineData data = klineData[i.round()];
 
@@ -73,7 +74,13 @@ class VolPainter  {
       rectLeft += (candleW + spacing);
     }
 
-    IndicatorLinePainter.paint(canvas, Size(size.width, height), height, IndicatorType.ma, maList, maPeriods, beginIdx, slideOffset, max, min, top: originBtm - height, infoTopOffset: 15);
+    // debug
+    // if (KLineConfig.shared.isDebug) {
+    //   KLineConfig.shared.drawDebugRect(canvas, Rect.fromLTWH(0, originBtm - KLineConfig.shared.subIndicatorHeight, width, height), Colors.orange.withOpacity(0.5));
+    // }
+
+    // volume ma indicator
+    IndicatorLinePainter.paint(canvas, Size(size.width, height), height - KLineConfig.shared.indicatorInfoHeight, IndicatorType.ma, maList, maPeriods, beginIdx, slideOffset, max, min, top: originBtm - height, infoTopOffset: 0.0);
 
   }
 

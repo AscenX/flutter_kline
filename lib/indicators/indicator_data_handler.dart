@@ -127,7 +127,7 @@ class IndicatorDataHandler {
   static List kdj(List<KLineData> klineData, List<int> periods, double beginIdx) {
     List kdjData = [];
     if (klineData.isEmpty || periods.length != 3) return kdjData;
-    int period = periods.first;
+    int period = periods[0];
     int period2 = periods[1];
     int period3 = periods[2];
 
@@ -140,8 +140,6 @@ class IndicatorDataHandler {
       if (i == 0) {
         double rsv = (data.close - data.low) / (data.high - data.low) * 100;
         lastK = lastD = rsv;
-        // max = min = rsv;
-        // print("??????????????????? min:$min");
         continue;
       }
 
@@ -158,7 +156,7 @@ class IndicatorDataHandler {
 
 
       int candleCount = KLineConfig.shared.candleCount;
-      if (i >= beginIdx && i < beginIdx + candleCount) {
+      if (i >= beginIdx.round() && i < beginIdx.round() + candleCount) {
 
         double rsv = (data.close - ln) / (hn - ln) * 100;
         double kValue = (lastK * (period2 - 1) + rsv) / period2;
@@ -171,7 +169,6 @@ class IndicatorDataHandler {
         if (kValue < min || min == 0.0) min = kValue;
         if (dValue < min) min = dValue;
         if (jValue < min) min = jValue;
-        // print("1111111111 i:$i,  min:$min, k:$kValue, d:$dValue, j:$jValue, lastK:$lastK, lastD:$lastD ");
 
         kValues.add(kValue);
         dValues.add(dValue);

@@ -31,7 +31,7 @@ enum IndicatorType {
 
 class KLineConfig {
 
-  bool isDebug = true;
+  bool isDebug = false;
   Color randomColor = Color.fromARGB(100, Random().nextInt(255), Random().nextInt(255), Random().nextInt(255));
   void drawDebugRect(Canvas canvas, Rect rect, Color color) {
     canvas.drawRect(rect, Paint()
@@ -47,16 +47,17 @@ class KLineConfig {
   /// current candle width
   double currentCandleW = 0.0;
   /// kline view margin
-  var klineMargin = const EdgeInsets.fromLTRB(0, 25, 0, 10);
+  var klineMargin = const EdgeInsets.fromLTRB(0, 0.0, 0, 0.0);
   /// min candle count
   int minCandleCount = 7;
   /// max candle count
   int maxCandleCount = 39;
 
+  // /// main indicator information top margin
+  // double mainIndicatorInfoTopMargin = 5.0;
+
   /// spacing between indicator
   double indicatorSpacing = 10.0;
-  /// indicator information top margin
-  double indicatorInfoTopMargin = 5.0;
   /// sub indicator height
   double subIndicatorHeight = 50.0;
   /// indicator information height

@@ -1,18 +1,17 @@
 
 import 'package:flutter/material.dart';
 import 'package:kline/kline_config.dart';
-import 'package:kline/kline_data.dart';
 
 class IndicatorLinePainter  {
 
-  static void paint(Canvas canvas, Size size, double height,
+
+  static void paint(Canvas canvas, Size size, double drawAreaHeight,
       IndicatorType type, List<List<double>> dataList, List<int> periods, double beginIdx, double slideOffset,
       double max, double min, {double top = 0.0, List<Color> lineColors = const [], double infoTopOffset = 0.0}) {
     if (periods.isEmpty) return;
     if (lineColors.isEmpty) lineColors = KLineConfig.shared.indicatorColors;
 
     double width = size.width;
-    if (!type.isMain) height -= KLineConfig.shared.indicatorInfoHeight;
 
     double spacing = KLineConfig.shared.spacing;
     double candleW = KLineConfig.candleWidth(width);
@@ -44,19 +43,18 @@ class IndicatorLinePainter  {
       for (var i = beginIdx;i < beginIdx + candleCount;++i) {
 
         if (dataList[idx].isEmpty) return;
-
         double value = dataList[idx][(i-beginIdx).round()];
         if (value < 0) continue;
         lastValue = value;
-        double indicatorY = height * (1 - (value - min) / valueOffset) + top;
-        if (!type.isMain) indicatorY += KLineConfig.shared.indicatorInfoHeight;
+        double indicatorY = drawAreaHeight * (1 - (value - min) / valueOffset) + top;
+        // if (!type.isMain) indicatorY += KLineConfig.shared.indicatorInfoHeight;
+        indicatorY += KLineConfig.shared.indicatorInfoHeight;
 
         indicatorX = (i - beginIdx - 1) * (candleW + spacing) + candleW * 0.5 + slideOffset;
 
         if (lastX == 0.0 && lastY == 0.0) {
           lastX = indicatorX;
           lastY = indicatorY;
-
         }
 
         // if (!type.isMain) print("i:$i,period:${period},value:${value},max:$max,min:($min),offset:(${(value - min) / valueOffset}), height:$height---lastY:${lastY - topY - KLineConfig.shared.indicatorInfoHeight}");
@@ -84,12 +82,11 @@ class IndicatorLinePainter  {
 
     if (KLineConfig.shared.isDebug) {
 
-      double originY = top;
-      double rectH = height;
-      // if (!type.isMain) rectH -= KLineConfig.shared.indicatorInfoHeight;
-      if (!type.isMain) originY += KLineConfig.shared.indicatorInfoHeight;
+      double originY = top + KLineConfig.shared.indicatorInfoHeight;
+      double rectH = drawAreaHeight;
+      // if (!type.isMain) originY += KLineConfig.shared.indicatorInfoHeight;
       Rect rect = Rect.fromLTWH(0, originY, size.width, rectH);
-      KLineConfig.shared.drawDebugRect(canvas, rect, Colors.red.withAlpha(50));
+      KLineConfig.shared.drawDebugRect(canvas, rect, Colors.green .withAlpha(50));
     }
 
     showIndicatorInfo(canvas, size, type, maInfoList, top, lineColors: lineColors, topOffset: infoTopOffset);
@@ -116,14 +113,13 @@ class IndicatorLinePainter  {
 
       double offsetX = lastWidth + (i == 0 ? 5 : i * 10);
       double originY = top + topOffset;
-      originY = type.isMain ? originY -KLineConfig.shared.klineMargin.top + KLineConfig.shared.indicatorInfoTopMargin : originY;
+      // originY = type.isMain ? originY  : originY;
       painter.paint(canvas, Offset(offsetX, originY));
       lastWidth += painter.width;
     }
 
     if (KLineConfig.shared.isDebug) {
       double originY = top + topOffset;
-      originY = type.isMain ? originY -KLineConfig.shared.klineMargin.top + KLineConfig.shared.indicatorInfoTopMargin : originY;
       double rectH = KLineConfig.shared.indicatorInfoHeight;
       Rect rect = Rect.fromLTWH(0, originY, size.width, rectH);
       KLineConfig.shared.drawDebugRect(canvas, rect, Colors.blue.withAlpha(50));

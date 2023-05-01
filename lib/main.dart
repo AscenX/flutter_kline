@@ -87,7 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child:
                 Row(
                     children: [
-                      const Text("主指标"),
+                      const Text("Main Indicator"),
                       ...IndicatorType.values.where((element) => element.isMain).map((e) {
                         return buildIndicator(e.name, e.isMain, clickIndicator);
                       })
@@ -100,8 +100,8 @@ class _MyHomePageState extends State<MyHomePage> {
               child:
                   Row(
                     children: [
-                      const Text("副指标"),
-                      ...IndicatorType.values.where((element) => !element.isMain).map((e) {
+                      const Text("Sub Indicator"),
+                      ...IndicatorType.values.where((element) => !element.isMain && element != IndicatorType.maVol).map((e) {
                         return buildIndicator(e.name, e.isMain, clickIndicator);
                       })
                     ]

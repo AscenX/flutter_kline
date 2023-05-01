@@ -7,6 +7,7 @@ enum IndicatorType {
   // boll(name: "BOLL"),
 
   vol(name: "VOL", isLine: false),
+  maVol(name: "MAVOL"), // same as ma, use for volume's ma
   // macd(name: "MACD", isLine: false),
   kdj(name: "KDJ"),
   // rsi(name: "RSI"),
@@ -31,7 +32,7 @@ enum IndicatorType {
 
 class KLineConfig {
 
-  bool isDebug = false;
+  bool isDebug = true;
   Color randomColor = Color.fromARGB(100, Random().nextInt(255), Random().nextInt(255), Random().nextInt(255));
   void drawDebugRect(Canvas canvas, Rect rect, Color color) {
     canvas.drawRect(rect, Paint()
@@ -52,6 +53,8 @@ class KLineConfig {
   int minCandleCount = 7;
   /// max candle count
   int maxCandleCount = 39;
+
+  double mainIndicatorInfoMargin = 5.0;
 
   // /// main indicator information top margin
   // double mainIndicatorInfoTopMargin = 5.0;

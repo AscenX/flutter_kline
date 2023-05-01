@@ -45,6 +45,10 @@ class KLinePainter extends CustomPainter {
     ..isAntiAlias = true
     ..strokeWidth = 1.0;
 
+  final _rulerPaint = Paint()
+  ..style = PaintingStyle.stroke
+  ..color = Colors.blueGrey.withOpacity(0.5);
+
   // draw kline
 
   @override
@@ -55,14 +59,18 @@ class KLinePainter extends CustomPainter {
     List showSubIndicators = KLineConfig.shared.showSubIndicators;
     int subIndicatorCount = showSubIndicators.length;
 
+    double spacing = KLineConfig.shared.spacing;
+    double candleW = KLineConfig.candleWidth(size.width);
+    int candleCount = KLineConfig.shared.candleCount;
+
     double indicatorInfoHeight = KLineConfig.shared.indicatorInfoHeight;
     double indicatorSpacing = KLineConfig.shared.indicatorSpacing;
 
-    double mainHeight = size.height - (KLineConfig.shared.subIndicatorHeight + indicatorSpacing) * subIndicatorCount - KLineConfig.shared.klineMargin.vertical;
+    double mainHeight = size.height - (KLineConfig.shared.subIndicatorHeight + indicatorSpacing) * subIndicatorCount
+        - KLineConfig.shared.klineMargin.vertical - KLineConfig.shared.mainIndicatorInfoMargin;
     if (KLineConfig.shared.showMainIndicators.isNotEmpty) {
       mainHeight -= indicatorInfoHeight;
     }
-    double width = size.width;
 
     // if (KLineConfig.shared.isDebug) {
     //   double topMargin = KLineConfig.shared.klineMargin.top;
@@ -71,10 +79,6 @@ class KLinePainter extends CustomPainter {
     //   }
     //   KLineConfig.shared.drawDebugRect(canvas, Rect.fromLTWH(0, topMargin, width, mainHeight ), Colors.orange.withOpacity(0.3));
     // }
-
-    double spacing = KLineConfig.shared.spacing;
-    double candleW = KLineConfig.candleWidth(width);
-    int candleCount = KLineConfig.shared.candleCount;
 
     // calculating the highest lowest point
     if (beginIdx >= klineData.length) return;
@@ -104,6 +108,8 @@ class KLinePainter extends CustomPainter {
     }
 
     double mainMax = max, mainMin = min;
+
+    drawRulerLine(canvas, mainHeight, size.width, indicatorInfoHeight + KLineConfig.shared.mainIndicatorInfoMargin, mainMax, mainMin);
 
     List<List<double>> mainIndicatorData = [];
     bool isShowMA = KLineConfig.shared.showMainIndicators.contains(IndicatorType.ma);
@@ -146,8 +152,6 @@ class KLinePainter extends CustomPainter {
     }
 
 
-
-
     // offset between the highest and lowest
     double valueOffset = max - min;
 
@@ -166,8 +170,8 @@ class KLinePainter extends CustomPainter {
       double close = data.close;
 
       double lineX = rectLeft + candleW * 0.5 + slideOffset;
-      double lineTop = mainHeight * (1 - (high - min) / valueOffset);
-      double lineBtm = mainHeight * (1 - (low - min) / valueOffset);
+      double lineTop = mainHeight * (1 - (high - min) / valueOffset) + KLineConfig.shared.mainIndicatorInfoMargin;
+      double lineBtm = mainHeight * (1 - (low - min) / valueOffset) + KLineConfig.shared.mainIndicatorInfoMargin;
       if (KLineConfig.shared.showMainIndicators.isNotEmpty) {
         lineTop += indicatorInfoHeight;
         lineBtm += indicatorInfoHeight;
@@ -195,7 +199,7 @@ class KLinePainter extends CustomPainter {
         canvas.drawLine(Offset(lineX, lineTop), Offset(lineX, lineBtm), _riseLinePaint);
       } else {
         double candleH = (open - close) / valueOffset * mainHeight;
-        double rectTop = mainHeight * (1 - (open - min) / valueOffset);
+        double rectTop = mainHeight * (1 - (open - min) / valueOffset) + KLineConfig.shared.mainIndicatorInfoMargin;
         if (KLineConfig.shared.showMainIndicators.isNotEmpty) {
           rectTop += indicatorInfoHeight;
         }
@@ -263,6 +267,16 @@ class KLinePainter extends CustomPainter {
     painter.paint(canvas, Offset(offset.dx + tranOffsetX + (tranOffsetX > 0 ? 5 : -painter.width - 5), offsetY));
   }
 
+  void drawRulerLine(Canvas canvas, double height, double width, double top, double highestPrice, double lowestPrice) {
+
+    for (var i = 1;i < 5;++i) {
+      canvas.drawLine(Offset(0, height * i / 5 + top), Offset(width, height * i / 5 + top), _rulerPaint);
+    }
+
+    for (var i = 1;i < 5;++i) {
+      canvas.drawLine(Offset(width * i / 5, top), Offset(width * i / 5, height + top), _rulerPaint);
+    }
+  }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;

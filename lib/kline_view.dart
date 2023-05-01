@@ -70,7 +70,6 @@ class _KLineViewState extends State<KLineView> {
     int maxCount = _dataLength > KLineConfig.shared.maxCandleCount ? KLineConfig.shared.maxCandleCount : _dataLength;
     count = count > maxCount ? maxCount : count;
     count = count < KLineConfig.shared.minCandleCount ? KLineConfig.shared.minCandleCount : count;
-    // print("11111111 _currentScale:$_currentScale, count:$count");
     if (count + _beginIdx >= _dataLength) {
       _beginIdx = (_dataLength - count).toDouble();
     }

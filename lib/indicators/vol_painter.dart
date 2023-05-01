@@ -80,7 +80,7 @@ class VolPainter  {
     // }
 
     // volume ma indicator
-    IndicatorLinePainter.paint(canvas, Size(size.width, height), height - KLineConfig.shared.indicatorInfoHeight, IndicatorType.ma, maList, maPeriods, beginIdx, slideOffset, max, min, top: originBtm - height, infoTopOffset: 0.0);
+    IndicatorLinePainter.paint(canvas, Size(size.width, height), height - KLineConfig.shared.indicatorInfoHeight, IndicatorType.maVol, maList, maPeriods, beginIdx, slideOffset, max, min, top: originBtm - height, infoTopOffset: 0.0);
 
   }
 

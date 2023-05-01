@@ -47,7 +47,7 @@ class IndicatorLinePainter  {
         if (value < 0) continue;
         lastValue = value;
         double indicatorY = drawAreaHeight * (1 - (value - min) / valueOffset) + top;
-        // if (!type.isMain) indicatorY += KLineConfig.shared.indicatorInfoHeight;
+        if (type.isMain) indicatorY += KLineConfig.shared.mainIndicatorInfoMargin;
         indicatorY += KLineConfig.shared.indicatorInfoHeight;
 
         indicatorX = (i - beginIdx - 1) * (candleW + spacing) + candleW * 0.5 + slideOffset;
@@ -57,8 +57,6 @@ class IndicatorLinePainter  {
           lastY = indicatorY;
         }
 
-        // if (!type.isMain) print("i:$i,period:${period},value:${value},max:$max,min:($min),offset:(${(value - min) / valueOffset}), height:$height---lastY:${lastY - topY - KLineConfig.shared.indicatorInfoHeight}");
-        // if (!type.isMain) print("111111111 --- lastY:${lastY - topY - KLineConfig.shared.indicatorInfoHeight}--------$i---value:$value----max:$max---$min");
         canvas.drawLine(Offset(lastX, lastY), Offset(indicatorX, indicatorY), linePaint);
 
         lastY = indicatorY;
@@ -84,7 +82,7 @@ class IndicatorLinePainter  {
 
       double originY = top + KLineConfig.shared.indicatorInfoHeight;
       double rectH = drawAreaHeight;
-      // if (!type.isMain) originY += KLineConfig.shared.indicatorInfoHeight;
+      if (type.isMain) originY += KLineConfig.shared.mainIndicatorInfoMargin;
       Rect rect = Rect.fromLTWH(0, originY, size.width, rectH);
       KLineConfig.shared.drawDebugRect(canvas, rect, Colors.green .withAlpha(50));
     }

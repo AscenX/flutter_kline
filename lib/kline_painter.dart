@@ -47,7 +47,7 @@ class KLinePainter extends CustomPainter {
 
   final _rulerPaint = Paint()
   ..style = PaintingStyle.stroke
-  ..color = Colors.blueGrey.withOpacity(0.5);
+  ..color = Colors.blueGrey.withOpacity(0.2);
 
   // draw kline
 
@@ -130,6 +130,21 @@ class KLinePainter extends CustomPainter {
         if (mainIndicatorMin < min && mainIndicatorMin != 0.0) min = mainIndicatorMin;
       }
     }
+
+    bool isShowBOLL = KLineConfig.shared.showMainIndicators.contains(IndicatorType.boll);
+    if (isShowBOLL) {
+      int bollPeriod = KLineConfig.shared.bollPeriod;
+      int bollBandwidth = KLineConfig.shared.bollBandwidth;
+
+      List bollData = IndicatorDataHandler.boll(klineData, bollPeriod, bollBandwidth, beginIdx);
+      mainIndicatorData = bollData[0];
+      double bollMax = bollData[1];
+      double bollMin = bollData[2];
+
+      if (bollMax > max) max = bollMax;
+      if (bollMin < min && bollMin != 0.0) min = bollMin;
+    }
+
     // KDJ, WR
     Map subIndicatorData = {},subMax = {}, subMin = {};
     IndicatorType kdjType = IndicatorType.kdj;
@@ -218,6 +233,11 @@ class KLinePainter extends CustomPainter {
     if (isShowMA || isShowEMA) {
       List<int> indicatorPeriods = isShowMA ? [7, 30] : [7, 25];
       IndicatorLinePainter.paint(canvas, size, mainHeight, KLineConfig.shared.showMainIndicators.first, mainIndicatorData, indicatorPeriods, beginIdx, slideOffset, max, min, top: KLineConfig.shared.klineMargin.top);
+    }
+
+    if (isShowBOLL) {
+      // List<int> indicatorPeriods = isShowMA ? [7, 30] : [7, 25];
+      IndicatorLinePainter.paint(canvas, size, mainHeight, KLineConfig.shared.showMainIndicators.first, mainIndicatorData, [0,0,0], beginIdx, slideOffset, max, min, top: KLineConfig.shared.klineMargin.top);
     }
 
     // draw sub indicator

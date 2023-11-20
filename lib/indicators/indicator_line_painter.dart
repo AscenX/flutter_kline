@@ -27,7 +27,7 @@ class IndicatorLinePainter  {
       if (dataList.length == idx) continue;
       int period = periods[idx];
 
-      Color color = (idx < (lineColors?.length ?? 0)) ? lineColors![idx] : const Color(0xff333333);
+      Color color = (idx < lineColors.length) ? lineColors[idx] : const Color(0xff333333);
       var linePaint = Paint()
         ..style = PaintingStyle.stroke
         ..color = color
@@ -98,7 +98,7 @@ class IndicatorLinePainter  {
     for (var i = 0;i < infoList.length;++i) {
       if (i >= infoList.length) return;
       String info = infoList[i];
-      Color color = (i < (lineColors?.length ?? 0)) ? lineColors![i] : const Color(0xff666666);
+      Color color = (i < lineColors.length) ? lineColors[i] : const Color(0xff666666);
       painter.text = TextSpan(text: info, style: TextStyle(
           color: color,
           fontSize: 13.0,

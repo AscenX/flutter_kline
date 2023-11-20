@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      title: "",
+      title: "flutter_kline demo app",
       home: MyHomePage(title: 'kline')
     );
   }

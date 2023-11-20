@@ -1,16 +1,17 @@
 
+import 'dart:math';
+
 import 'package:kline/kline_config.dart';
 import 'package:kline/kline_data.dart';
 
 class IndicatorDataHandler {
 
-  static List ma(List<KLineData> klineData, List<int> periods, double beginIdx, {bool isVol=false}) {
+  static List ma(List<KLineData> klineData, List<int> periods, double beginIdx, {bool isVol = false}) {
     if (klineData.isEmpty || periods.isEmpty) return [];
 
     List<List<double>> maData = [];
     double max = 0.0;
     double min = 0.0;
-
     int candleCount = KLineConfig.shared.candleCount;
 
     for (var i = 0;i < periods.length; ++i) {
@@ -28,7 +29,6 @@ class IndicatorDataHandler {
         }
 
         double startIdx = j > period ? j - period : 0;
-
         List<KLineData> sublist = klineData.sublist(startIdx.round(), (startIdx + period).round());
         if (sublist.isEmpty) continue;
         double sum = 0.0;
@@ -56,7 +56,6 @@ class IndicatorDataHandler {
     List<List<double>> emaData = [];
     double max = 0.0;
     double min = 0.0;
-
     int candleCount = KLineConfig.shared.candleCount;
 
     for (var i = 0; i < periods.length;++i) {
@@ -84,7 +83,6 @@ class IndicatorDataHandler {
         double deno = period * (period + 1) * 0.5;
         double emaValue = close * period / deno + (deno - period) * lastEma / deno;
 
-
         if (j >= beginIdx-1 && j < beginIdx + candleCount) {
           if (max == 0 || emaValue > max) max = emaValue;
           if (min == 0 || emaValue < min) min = emaValue;
@@ -101,23 +99,52 @@ class IndicatorDataHandler {
     return [emaData, max, min];
   }
 
-  static List boll(List<KLineData> klineData, int period, int bandwidth, int beginIdx) {
+  static double _calculateStandardDeviation(List<double> values) {
+    double mean = values.reduce((a, b) => a + b) / values.length;
+    double variance = values.map((x) => pow(x - mean, 2)).reduce((a, b) => a + b) / values.length;
+    return sqrt(variance);
+  }
+
+  static List boll(List<KLineData> klineData, int period, int bandwidth, double beginIdx) {
     if (klineData.isEmpty || period < 0 || bandwidth < 0) return [];
 
-    List<double> dataList = [];
-    double max = 0.0;
-    double min = 0.0;
-    for (var i = 0; i < klineData.length; ++i) {
+    List<double> upList = [];
+    List<double> dnList = [];
+    List<double> mbList = [];
+
+
+    for (int i = 0; i < klineData.length; i++) {
       if (i < period - 1) {
-        dataList.add(-1);
+        mbList.add(klineData[i].close);
+        upList.add(klineData[i].close);
+        dnList.add(klineData[i].close);
         continue;
       }
+      List<double> subList = klineData.sublist(i - period + 1, i + 1).map((e) => e.close).toList();
+      double mb = subList.reduce((a, b) => a + b) / period;
+      double std = _calculateStandardDeviation(subList);
 
-      double ma = 0.0;
+      double up = mb + bandwidth * std;
+      double dn = mb - bandwidth * std;
 
+      mbList.add(mb);
+      upList.add(up);
+      dnList.add(dn);
     }
 
-    return [];
+    int candleCount = KLineConfig.shared.candleCount;
+    double start = beginIdx > 0 ? beginIdx -1 : 0;
+    upList = upList.sublist(start.round(), start.round() + candleCount);
+    mbList = mbList.sublist(start.round(), start.round() + candleCount);
+    dnList = dnList.sublist(start.round(), start.round() + candleCount);
+
+    double maxValue = 0.0, minValue = dnList.first;
+    for(int i = 0; i < upList.length;++i) {
+      maxValue = max(upList[i], maxValue);
+      minValue = min(dnList[i], minValue);
+    }
+
+    return [[mbList, upList, dnList], maxValue, minValue];
   }
 
   static List macd(List<KLineData> klineData, List periods) {

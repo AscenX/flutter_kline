@@ -2,10 +2,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 enum IndicatorType {
+  // main
   ma(name: "MA"),
   ema(name: "EMA"),
-  // boll(name: "BOLL"),
+  boll(name: "BOLL"),
 
+  // sub
   vol(name: "VOL", isLine: false),
   maVol(name: "MAVOL"), // same as ma, use for volume's ma
   // macd(name: "MACD", isLine: false),

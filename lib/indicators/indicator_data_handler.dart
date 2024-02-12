@@ -15,7 +15,7 @@ class IndicatorDataHandler {
     double min = 0.0;
     int candleCount = KLineConfig.shared.candleCount;
 
-    for (var i = 0;i < periods.length; ++i) {
+    for (int i = 0; i < periods.length; ++i) {
 
       List<double> maList = [];
       int period = periods[i];
@@ -26,7 +26,7 @@ class IndicatorDataHandler {
           maList.add(-1);
           continue;
         }
-        
+
         // start from the index equals period
         double startIdx = j >= period - 1 ? j - period + 1 : 0;
 
@@ -68,7 +68,7 @@ class IndicatorDataHandler {
       double lastEma = klineData.first.close;
       double sum = 0.0;
 
-      for (var j = 0;j < klineData.length;++j) {
+      for (int j = 0;j < klineData.length;++j) {
 
         double close = klineData[j].close;
 
@@ -95,7 +95,7 @@ class IndicatorDataHandler {
         emaList.add(emaValue);
       }
 
-      double start = beginIdx > 0 ? beginIdx -1 : 0;
+      double start = beginIdx > 0 ? beginIdx : 0;
       List<double> subList = emaList.sublist(start.round(), start.round() + candleCount);
       emaData.add(subList);
     }
@@ -112,15 +112,15 @@ class IndicatorDataHandler {
     if (klineData.isEmpty || period < 0 || bandwidth < 0) return [];
 
     List<double> upList = [];
-    List<double> dnList = [];
     List<double> mbList = [];
+    List<double> dnList = [];
 
 
     for (int i = 0; i < klineData.length; i++) {
       if (i < period - 1) {
-        mbList.add(klineData[i].close);
-        upList.add(klineData[i].close);
-        dnList.add(klineData[i].close);
+        upList.add(-1);
+        mbList.add(-1);
+        dnList.add(-1);
         continue;
       }
       List<double> subList = klineData.sublist(i - period + 1, i + 1).map((e) => e.close).toList();
@@ -130,13 +130,13 @@ class IndicatorDataHandler {
       double up = mb + bandwidth * std;
       double dn = mb - bandwidth * std;
 
-      mbList.add(mb);
       upList.add(up);
+      mbList.add(mb);
       dnList.add(dn);
     }
 
     int candleCount = KLineConfig.shared.candleCount;
-    double start = beginIdx > 0 ? beginIdx -1 : 0;
+    double start = beginIdx > 0 ? beginIdx : 0;
     upList = upList.sublist(start.round(), start.round() + candleCount);
     mbList = mbList.sublist(start.round(), start.round() + candleCount);
     dnList = dnList.sublist(start.round(), start.round() + candleCount);

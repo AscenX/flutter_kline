@@ -3,6 +3,9 @@
 
 ### A flutter kline plugin
 
+#### Demo Gif
+![](https://raw.githubusercontent.com/AscenX/flutter_kline/main/demo/demo.gif)
+
 #### Todo:
 - ~~MA indicator~~
 - ~~EMA indicator~~
@@ -23,6 +26,3 @@
 
 - SAR  indicator
 - OBV indicator
-
-#### Demo Gif
-![](https://raw.githubusercontent.com/AscenX/flutter_kline/main/demo/demo.gif)

@@ -48,13 +48,14 @@ class IndicatorLinePainter  {
       double lastValue = 0.0;
 
       for (var i = beginIdx;i < beginIdx + candleCount;++i) {
-        if ((i - beginIdx).round() >= dataList[idx].length) {
-          debugPrint('debug:range error, type:$type, index:${i - beginIdx}, length:${dataList[idx].length}');
-          return;
-        }
         if (dataList[idx].isEmpty) {
           debugPrint('debug:dataList[idx].isEmpty');
           return;
+        }
+
+        if ((i - beginIdx).round() >= dataList[idx].length) {
+          debugPrint('debug:range error, type:$type, index:${i - beginIdx}, length:${dataList[idx].length}');
+          continue;
         }
         // if (i.round() < period) {
         //   debugPrint('debug:i - beginIdx < period, beginIdx:$beginIdx, i:$i');

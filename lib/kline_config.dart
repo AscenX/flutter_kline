@@ -6,14 +6,16 @@ enum IndicatorType {
   ma(name: "MA"),
   ema(name: "EMA"),
   boll(name: "BOLL"),
+  sar(name: 'SAR'),
 
   // sub
   vol(name: "VOL", isLine: false),
   maVol(name: "MAVOL"), // same as ma, use for volume's ma
-  // macd(name: "MACD", isLine: false),
+  macd(name: "MACD", isLine: false),
   kdj(name: "KDJ"),
-  // rsi(name: "RSI"),
-  wr(name: "WR");
+  rsi(name: "RSI"),
+  wr(name: "WR"),
+  obv(name: 'OBV');
 
   bool get isMain => index < IndicatorType.vol.index;
 
@@ -22,12 +24,10 @@ enum IndicatorType {
   const IndicatorType({required this.name, this.isLine = true});
 
   factory IndicatorType.fromName(String name) {
-    for (var type in IndicatorType.values) {
-      if (name == type.name) {
-        return type;
-      }
+    if (!IndicatorType.values.map((e) => e.name).toList().contains(name)) {
+      return IndicatorType.ma;
     }
-    return IndicatorType.ma;
+    return IndicatorType.values.firstWhere((element) => element.name == name);
   }
 }
 
@@ -79,7 +79,7 @@ class KLineConfig {
   List<IndicatorType> showSubIndicators = [IndicatorType.vol, IndicatorType.kdj];
 
   /// BOLL Calculating Period (N)
-  int bollPeriod = 20;
+  int bollPeriod = 21;
   /// BOLL Bandwidth (P)
   int bollBandwidth = 2;
 

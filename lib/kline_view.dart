@@ -6,6 +6,14 @@ import 'package:kline/kline_data.dart';
 import 'package:kline/kline_painter.dart';
 import 'package:flutter/services.dart';
 
+
+class KLineView extends StatefulWidget {
+  const KLineView({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _KLineViewState();
+}
+
 class _KLineViewState extends State<KLineView> {
 
   late final ScrollController _klineSc;
@@ -154,11 +162,4 @@ class _KLineViewState extends State<KLineView> {
     _klineSc.dispose();
     super.dispose();
   }
-}
-
-class KLineView extends StatefulWidget {
-  const KLineView({super.key});
-
-  @override
-  State<StatefulWidget> createState() => _KLineViewState();
 }

@@ -82,7 +82,7 @@ class _KLineViewState extends State<KLineView> {
   Widget build(BuildContext context) {
     return Container(
       margin: KLineConfig.shared.klineMargin,
-      color: KLineConfig.shared.isDebug ? Colors.deepPurple.withAlpha(30) : null,
+      // color: KLineConfig.shared.isDebug ? Colors.deepPurple.withAlpha(80) : null,
       child: FutureBuilder(
             future: _loadJson(),
             initialData: const <KLineData>[],

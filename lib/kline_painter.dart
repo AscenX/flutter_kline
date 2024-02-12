@@ -63,25 +63,30 @@ class KLinePainter extends CustomPainter {
     double candleW = KLineConfig.candleWidth(size.width);
     int candleCount = KLineConfig.shared.candleCount;
 
+    double mainTopMargin = KLineConfig.shared.klineMargin.top;
+    double mainInfoMargin = KLineConfig.shared.mainIndicatorInfoMargin;
+
     double indicatorInfoHeight = KLineConfig.shared.indicatorInfoHeight;
     double indicatorSpacing = KLineConfig.shared.indicatorSpacing;
 
+    // main draw area height
     double mainHeight = size.height - (KLineConfig.shared.subIndicatorHeight + indicatorSpacing) * subIndicatorCount
-        - KLineConfig.shared.klineMargin.vertical - KLineConfig.shared.mainIndicatorInfoMargin;
+        - KLineConfig.shared.klineMargin.bottom;
+
     if (KLineConfig.shared.showMainIndicators.isNotEmpty) {
-      mainHeight -= indicatorInfoHeight;
+      mainTopMargin += (indicatorInfoHeight + mainInfoMargin);
     }
+    mainHeight -= mainTopMargin;
 
     // if (KLineConfig.shared.isDebug) {
-    //   double topMargin = KLineConfig.shared.klineMargin.top;
-    //   if (KLineConfig.shared.showMainIndicators.isNotEmpty) {
-    //     topMargin += indicatorInfoHeight;
-    //   }
-    //   KLineConfig.shared.drawDebugRect(canvas, Rect.fromLTWH(0, topMargin, width, mainHeight ), Colors.orange.withOpacity(0.3));
+    //   KLineConfig.shared.drawDebugRect(canvas, Rect.fromLTWH(0, mainTopMargin, size.width, mainHeight), Colors.red.withOpacity(0.4));
     // }
 
     // calculating the highest lowest point
-    if (beginIdx >= klineData.length) return;
+    if (beginIdx >= klineData.length) {
+      // debugPrint('debug: beginIdx($beginIdx) >= klineData.length(${klineData.length}) return');
+      return;
+    }
     KLineData beginData = klineData[beginIdx.round()];
     double max = beginData.high;
     double min = beginData.low;
@@ -185,12 +190,8 @@ class KLinePainter extends CustomPainter {
       double close = data.close;
 
       double lineX = rectLeft + candleW * 0.5 + slideOffset;
-      double lineTop = mainHeight * (1 - (high - min) / valueOffset) + KLineConfig.shared.mainIndicatorInfoMargin;
-      double lineBtm = mainHeight * (1 - (low - min) / valueOffset) + KLineConfig.shared.mainIndicatorInfoMargin;
-      if (KLineConfig.shared.showMainIndicators.isNotEmpty) {
-        lineTop += indicatorInfoHeight;
-        lineBtm += indicatorInfoHeight;
-      }
+      double lineTop = mainHeight * (1 - (high - min) / valueOffset) + mainTopMargin;
+      double lineBtm = mainHeight * (1 - (low - min) / valueOffset) + mainTopMargin;
 
       if (i == maxIdx) {
         maxX = lineX;
@@ -203,26 +204,21 @@ class KLinePainter extends CustomPainter {
 
       if (close > open) {
         double candleH = (close - open) / valueOffset * mainHeight;
-        double rectTop = mainHeight * (1 - (open - min) / valueOffset);
+        double rectTop = mainHeight * (1 - (open - min) / valueOffset) + mainTopMargin;
         rectTop -= candleH; // rise starts at the top
-        if (KLineConfig.shared.showMainIndicators.isNotEmpty) {
-          rectTop += indicatorInfoHeight;
-        }
         canvas.drawRect(
             Rect.fromLTWH(rectLeft + slideOffset, rectTop, candleW, candleH), _riseRectPaint);
         // draw line
         canvas.drawLine(Offset(lineX, lineTop), Offset(lineX, lineBtm), _riseLinePaint);
       } else {
         double candleH = (open - close) / valueOffset * mainHeight;
-        double rectTop = mainHeight * (1 - (open - min) / valueOffset) + KLineConfig.shared.mainIndicatorInfoMargin;
-        if (KLineConfig.shared.showMainIndicators.isNotEmpty) {
-          rectTop += indicatorInfoHeight;
-        }
+        double rectTop = mainHeight * (1 - (open - min) / valueOffset) + mainTopMargin;
         canvas.drawRect(
             Rect.fromLTWH(rectLeft + slideOffset, rectTop, candleW, candleH), _fallRectPaint);
         // draw line
         canvas.drawLine(Offset(lineX, lineTop), Offset(lineX, lineBtm), _fallLinePaint);
       }
+      // debugPrint('drawRectLine:idx:${i.round()}, close:$close, centerX:$lineX');
 
       rectLeft += (candleW + spacing);
     }
@@ -232,7 +228,7 @@ class KLinePainter extends CustomPainter {
 
     if (isShowMA || isShowEMA) {
       List<int> indicatorPeriods = isShowMA ? [7, 30] : [7, 25];
-      IndicatorLinePainter.paint(canvas, size, mainHeight, KLineConfig.shared.showMainIndicators.first, mainIndicatorData, indicatorPeriods, beginIdx, slideOffset, max, min, top: KLineConfig.shared.klineMargin.top);
+      IndicatorLinePainter.paint(canvas, size, mainHeight, KLineConfig.shared.showMainIndicators.first, mainIndicatorData, indicatorPeriods, beginIdx, slideOffset, max, min, top: KLineConfig.shared.klineMargin.top, debugData: klineData);
     }
 
     if (isShowBOLL) {

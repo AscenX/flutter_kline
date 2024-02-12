@@ -50,13 +50,14 @@ class KLineConfig {
   /// current candle width
   double currentCandleW = 0.0;
   /// kline view margin
-  var klineMargin = const EdgeInsets.fromLTRB(0, 0.0, 0, 0.0);
+  var klineMargin = const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0);
   /// min candle count
   int minCandleCount = 7;
   /// max candle count
   int maxCandleCount = 39;
 
   double mainIndicatorInfoMargin = 5.0;
+  double subIndicatorInfoMargin = 5.0;
 
   // /// main indicator information top margin
   // double mainIndicatorInfoTopMargin = 5.0;

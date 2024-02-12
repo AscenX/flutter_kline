@@ -1,6 +1,7 @@
 
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:kline/kline_config.dart';
 import 'package:kline/kline_data.dart';
 
@@ -19,18 +20,21 @@ class IndicatorDataHandler {
       List<double> maList = [];
       int period = periods[i];
 
-      for (var j = beginIdx;j <= beginIdx + candleCount;++j) {
+      for (var j = beginIdx;j < beginIdx + candleCount;++j) {
 
-        if (j < period - 1) {
+        if (j.round() < period - 1) {
           maList.add(-1);
           continue;
-        } else if (j == period - 1) {
+        }
+        
+        // start from the index equals period
+        double startIdx = j >= period - 1 ? j - period + 1 : 0;
+
+        List<KLineData> sublist = klineData.sublist(startIdx.round(), (startIdx + period).round());
+        if (sublist.isEmpty) {
+          debugPrint('debug:sublist.isEmpty');
           continue;
         }
-
-        double startIdx = j > period ? j - period : 0;
-        List<KLineData> sublist = klineData.sublist(startIdx.round(), (startIdx + period).round());
-        if (sublist.isEmpty) continue;
         double sum = 0.0;
         if (isVol) {
           sum = sublist.fold(0.0, (pre, e) => pre + e.volumne);
@@ -41,7 +45,6 @@ class IndicatorDataHandler {
 
         if (max == 0 || maValue > max) max = maValue;
         if (min == 0 || maValue < min) min = maValue;
-
         maList.add(maValue);
       }
 
@@ -147,8 +150,67 @@ class IndicatorDataHandler {
     return [[mbList, upList, dnList], maxValue, minValue];
   }
 
-  static List macd(List<KLineData> klineData, List periods) {
+  static List macd(List<KLineData> klineData, List periods, double beginIdx) {
     return [];
+  }
+
+  static double _emaCaculate(List<double> values, int period) {
+    if (values.length < period) {
+      return 0.0;
+    }
+
+    double sum = 0;
+    for (int i = values.length - period; i < values.length; i++) {
+      sum += values[i];
+    }
+
+    return sum / period;
+  }
+
+  static void calculateMACD(List<double> values, int shortPeriod, int longPeriod, int signalPeriod) {
+    if (values.length < longPeriod) {
+      throw Exception("数据点数量不足");
+    }
+
+    // 计算短期移动平均线
+    List<double> shortEMA = [];
+    for (int i = longPeriod - shortPeriod; i < values.length; i++) {
+      List<double> subset = values.sublist(i - shortPeriod + 1, i + 1);
+      double ema = _emaCaculate(subset, shortPeriod);
+      shortEMA.add(ema);
+    }
+
+    // 计算长期移动平均线
+    List<double> longEMA = [];
+    for (int i = longPeriod - 1; i < values.length; i++) {
+      List<double> subset = values.sublist(i - longPeriod + 1, i + 1);
+      double ema = _emaCaculate(subset, longPeriod);
+      longEMA.add(ema);
+    }
+
+    // 计算DIF（快线）
+    List<double> dif = [];
+    for (int i = 0; i < longEMA.length; i++) {
+      dif.add(shortEMA[i] - longEMA[i]);
+    }
+
+    // 计算DEA（慢线）
+    List<double> dea = [];
+    for (int i = signalPeriod - 1; i < dif.length; i++) {
+      List<double> subset = dif.sublist(i - signalPeriod + 1, i + 1);
+      double ema = _emaCaculate(subset, signalPeriod);
+      dea.add(ema);
+    }
+
+    // 计算MACD（柱状线）
+    List<double> macd = [];
+    for (int i = 0; i < dif.length; i++) {
+      macd.add(2 * (dif[i] - dea[i]));
+    }
+
+    print("DIF: $dif");
+    print("DEA: $dea");
+    print("MACD: $macd");
   }
 
   static List kdj(List<KLineData> klineData, List<int> periods, double beginIdx) {

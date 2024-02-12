@@ -1,13 +1,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:kline/kline_config.dart';
+import 'package:kline/kline_data.dart';
 
 class IndicatorLinePainter  {
 
 
   static void paint(Canvas canvas, Size size, double drawAreaHeight,
       IndicatorType type, List<List<double>> dataList, List<int> periods, double beginIdx, double slideOffset,
-      double max, double min, {double top = 0.0, List<Color> lineColors = const [], double infoTopOffset = 0.0}) {
+      double max, double min, {double top = 0.0, List<Color> lineColors = const [], double infoTopOffset = 0.0, List<KLineData> debugData = const []}) {
     if (periods.isEmpty) return;
     if (lineColors.isEmpty) lineColors = KLineConfig.shared.indicatorColors;
 
@@ -23,8 +24,14 @@ class IndicatorLinePainter  {
 
     List<String> maInfoList = [];
     for (int idx = 0;idx < periods.length; ++idx) {
-      if (dataList.isEmpty) return;
-      if (dataList.length == idx) continue;
+      if (dataList.isEmpty) {
+        debugPrint('debug:data is empty');
+        return;
+      }
+      if (dataList.length == idx) {
+        debugPrint('debug:dataList.length == idx');
+        continue;
+      }
       int period = periods[idx];
 
       Color color = (idx < lineColors.length) ? lineColors[idx] : const Color(0xff333333);
@@ -41,16 +48,29 @@ class IndicatorLinePainter  {
       double lastValue = 0.0;
 
       for (var i = beginIdx;i < beginIdx + candleCount;++i) {
-
-        if (dataList[idx].isEmpty) return;
-        double value = dataList[idx][(i-beginIdx).round()];
-        if (value < 0) continue;
+        if ((i - beginIdx).round() >= dataList[idx].length) {
+          debugPrint('debug:range error, type:$type, index:${i - beginIdx}, length:${dataList[idx].length}');
+          return;
+        }
+        if (dataList[idx].isEmpty) {
+          debugPrint('debug:dataList[idx].isEmpty');
+          return;
+        }
+        // if (i.round() < period) {
+        //   debugPrint('debug:i - beginIdx < period, beginIdx:$beginIdx, i:$i');
+        //   continue;
+        // }
+        double value = dataList[idx][(i - beginIdx).round()];
+        if (value < 0) {
+          // debugPrint('debug:value < 0, type:$type i:$i, beginIdx:$beginIdx, value:$value');
+          continue;
+        }
         lastValue = value;
         double indicatorY = drawAreaHeight * (1 - (value - min) / valueOffset) + top;
         if (type.isMain) indicatorY += KLineConfig.shared.mainIndicatorInfoMargin;
         indicatorY += KLineConfig.shared.indicatorInfoHeight;
 
-        indicatorX = (i - beginIdx - 1) * (candleW + spacing) + candleW * 0.5 + slideOffset;
+        indicatorX = (i - beginIdx) * (candleW + spacing) + candleW * 0.5 + slideOffset;
 
         if (lastX == 0.0 && lastY == 0.0) {
           lastX = indicatorX;
@@ -58,7 +78,9 @@ class IndicatorLinePainter  {
         }
 
         canvas.drawLine(Offset(lastX, lastY), Offset(indicatorX, indicatorY), linePaint);
-
+        if (type == IndicatorType.ma) {
+          // debugPrint('drawLine: beginIdx:$beginIdx, idx:${i.round()},close:${debugData[i.round()].close} ($indicatorX, $indicatorY), slideOffset:$slideOffset, dataIdx:${(i - beginIdx).round()}, total:${dataList[idx].length}, candleCount:${KLineConfig.shared.candleCount}');
+        }
         lastY = indicatorY;
         lastX = indicatorX;
       }
@@ -78,12 +100,14 @@ class IndicatorLinePainter  {
       }
     }
 
+    // line debug area
     if (KLineConfig.shared.isDebug) {
 
       double originY = top + KLineConfig.shared.indicatorInfoHeight;
-      double rectH = drawAreaHeight;
-      if (type.isMain) originY += KLineConfig.shared.mainIndicatorInfoMargin;
-      Rect rect = Rect.fromLTWH(0, originY, size.width, rectH);
+      if (type.isMain && KLineConfig.shared.showMainIndicators.isNotEmpty) {
+        originY += KLineConfig.shared.mainIndicatorInfoMargin;
+      }
+      Rect rect = Rect.fromLTWH(0, originY, size.width, drawAreaHeight);
       KLineConfig.shared.drawDebugRect(canvas, rect, Colors.green .withAlpha(50));
     }
 

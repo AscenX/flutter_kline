@@ -111,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: MediaQuery.of(context).size.width,
                 height: 400,
                 decoration: const BoxDecoration(border: Border.symmetric(horizontal: BorderSide(color: Colors.black))),
-                child: KLineView()
+                child: const KLineView()
             )
           ],
         )

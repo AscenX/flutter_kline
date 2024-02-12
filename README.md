@@ -21,5 +21,8 @@
 - Finish usage document
 - Publish to pub.dev
 
+- SAR  indicator
+- OBV indicator
+
 #### Demo Gif
 ![](https://raw.githubusercontent.com/AscenX/flutter_kline/main/demo/demo.gif)

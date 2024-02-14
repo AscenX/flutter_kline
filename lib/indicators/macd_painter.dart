@@ -49,7 +49,7 @@ class MACDPainter  {
 
       double open = data.open;
       double close = data.close;
-      double volume = data.volumne;
+      double volume = data.volume;
 
       double volumeH = height * volume / valueOffset;
 

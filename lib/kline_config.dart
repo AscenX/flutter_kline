@@ -84,7 +84,7 @@ class KLineConfig {
   int bollBandwidth = 2;
 
   /// VOL MA periods
-  List<int> volMaPeriods = [5, 10];
+  List<int> volMaPeriods = [7, 14];
 
   /// KDJ periods
   List<int> kdjPeriods = [9,3,3];

@@ -64,7 +64,7 @@ class VolPainter  {
 
       double open = data.open;
       double close = data.close;
-      double volume = data.volumne;
+      double volume = data.volume;
 
       double volumeH = (height - KLineConfig.shared.indicatorInfoHeight) * volume / valueOffset;
 

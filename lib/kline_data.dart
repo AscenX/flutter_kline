@@ -1,19 +1,19 @@
 
 class KLineData {
-  var open = 0.0;
-  var high = 0.0;
-  var low = 0.0;
-  var close = 0.0;
-  var volumne = 0.0;
-  var time = 0;
+  double open = 0.0;
+  double high = 0.0;
+  double low = 0.0;
+  double close = 0.0;
+  double volume = 0.0;
+  int time = 0;
 
   KLineData.fromJson(dynamic json) {
-    open = json['open'];
-    high = json['high'];
-    low = json['low'];
-    close = json['close'];
-    volumne = json['volumne'];
-    time = json['time'];
+    open = json['open'] ?? 0.0;
+    high = json['high'] ?? 0.0;
+    low = json['low'] ?? 0.0;
+    close = json['close'] ?? 0.0;
+    volume = json['volume'] ?? 0.0;
+    time = json['time'] ?? 0;
   }
 
   // [
@@ -37,7 +37,7 @@ class KLineData {
     high = list.length > 2 ? double.parse(list[2]) : 0.0;
     low = list.length > 3 ? double.parse(list[3]) : 0.0;
     close = list.length > 4 ? double.parse(list[4]) : 0.0;
-    volumne = list.length > 5 ? double.parse(list[5]) : 0.0;
+    volume = list.length > 5 ? double.parse(list[5]) : 0.0;
     time = list.length > 6 ? list[6] : 0;
   }
 }

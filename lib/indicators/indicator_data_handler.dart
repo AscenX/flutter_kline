@@ -37,7 +37,7 @@ class IndicatorDataHandler {
         }
         double sum = 0.0;
         if (isVol) {
-          sum = sublist.fold(0.0, (pre, e) => pre + e.volumne);
+          sum = sublist.fold(0.0, (pre, e) => pre + e.volume);
         } else {
           sum = sublist.fold(0.0, (pre, e) => pre + e.close);
         }
@@ -154,7 +154,7 @@ class IndicatorDataHandler {
     return [];
   }
 
-  static double _emaCaculate(List<double> values, int period) {
+  static double _emaCalculate(List<double> values, int period) {
     if (values.length < period) {
       return 0.0;
     }
@@ -176,7 +176,7 @@ class IndicatorDataHandler {
     List<double> shortEMA = [];
     for (int i = longPeriod - shortPeriod; i < values.length; i++) {
       List<double> subset = values.sublist(i - shortPeriod + 1, i + 1);
-      double ema = _emaCaculate(subset, shortPeriod);
+      double ema = _emaCalculate(subset, shortPeriod);
       shortEMA.add(ema);
     }
 
@@ -184,7 +184,7 @@ class IndicatorDataHandler {
     List<double> longEMA = [];
     for (int i = longPeriod - 1; i < values.length; i++) {
       List<double> subset = values.sublist(i - longPeriod + 1, i + 1);
-      double ema = _emaCaculate(subset, longPeriod);
+      double ema = _emaCalculate(subset, longPeriod);
       longEMA.add(ema);
     }
 
@@ -198,7 +198,7 @@ class IndicatorDataHandler {
     List<double> dea = [];
     for (int i = signalPeriod - 1; i < dif.length; i++) {
       List<double> subset = dif.sublist(i - signalPeriod + 1, i + 1);
-      double ema = _emaCaculate(subset, signalPeriod);
+      double ema = _emaCalculate(subset, signalPeriod);
       dea.add(ema);
     }
 
@@ -216,30 +216,34 @@ class IndicatorDataHandler {
   static List kdj(List<KLineData> klineData, List<int> periods, double beginIdx) {
     List kdjData = [];
     if (klineData.isEmpty || periods.length != 3) return kdjData;
-    int period = periods[0];
+    int period1 = periods[0];
     int period2 = periods[1];
     int period3 = periods[2];
 
     double lastK = 0.0, lastD = 0.0;
 
     List<double> kValues = [], dValues = [], jValues = [];
-    double max = 0.0, min = 0.0;
+    double maxValue = 0.0, minValue = 0.0;
     for(var i = 0;i < klineData.length; ++i) {
       KLineData data = klineData[i];
       if (i == 0) {
         double rsv = (data.close - data.low) / (data.high - data.low) * 100;
+        // debugPrint('11111 rsv:$rsv');
         lastK = lastD = rsv;
+        // kValues.add(lastK);
+        // dValues.add(lastD);
+        // jValues.add(-1);
         continue;
       }
 
-      int startIdx = i > period ? i - period : 0;
-      List<KLineData> sublist = klineData.sublist(startIdx, startIdx + period);
+      int startIdx = i >= period1 ? i - period1 + 1 : 0;
+      List<KLineData> sublist = klineData.sublist(startIdx, startIdx + period1);
       double hn = sublist.first.high;
       double ln = sublist.first.low;
-      for (int j = 0;j < sublist.length; ++j) {
+      for (int j = 1;j < sublist.length; ++j) {
         KLineData subData = sublist[j];
-        if (subData.high > hn) hn = subData.high;
-        if (subData.low < ln) ln = subData.low;
+        hn = max(hn, subData.high);
+        ln = min(ln, subData.low);
       }
       if (ln == hn) return [];
 
@@ -252,12 +256,16 @@ class IndicatorDataHandler {
         double dValue = (lastD * (period3 - 1) + kValue) / period3;
         double jValue = kValue * 3 - dValue * 2;
 
-        if (kValue > max || max == 0.0) max = kValue;
-        if (dValue > max) max = dValue;
-        if (jValue > max) max = jValue;
-        if (kValue < min || min == 0.0) min = kValue;
-        if (dValue < min) min = dValue;
-        if (jValue < min) min = jValue;
+        if (kValue > maxValue || maxValue == 0.0) maxValue = kValue;
+        if (dValue > maxValue) maxValue = dValue;
+        if (jValue > maxValue) maxValue = jValue;
+        if (kValue < minValue || minValue == 0.0) minValue = kValue;
+        if (dValue < minValue) minValue = dValue;
+        if (jValue < minValue) minValue = jValue;
+
+        if (i == 8) {
+          debugPrint('1111111 i:$i, startIdx:$startIdx, rsv:$rsv,  K:$kValue, sub:${sublist.length}');
+        }
 
         kValues.add(kValue);
         dValues.add(dValue);
@@ -268,7 +276,7 @@ class IndicatorDataHandler {
       }
     }
 
-    List res = [[kValues, dValues, jValues], max, min];
+    List res = [[kValues, dValues, jValues], maxValue, minValue];
     return res;
   }
 

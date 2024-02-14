@@ -8,7 +8,7 @@ class IndicatorLinePainter  {
 
   static void paint(Canvas canvas, Size size, double drawAreaHeight,
       IndicatorType type, List<List<double>> dataList, List<int> periods, double beginIdx, double slideOffset,
-      double max, double min, {double top = 0.0, List<Color> lineColors = const [], double infoTopOffset = 0.0, List<KLineData> debugData = const []}) {
+      double maxValue, double minValue, {double top = 0.0, List<Color> lineColors = const [], double infoTopOffset = 0.0, List<KLineData> debugData = const []}) {
     if (periods.isEmpty) return;
     if (lineColors.isEmpty) lineColors = KLineConfig.shared.indicatorColors;
 
@@ -18,16 +18,12 @@ class IndicatorLinePainter  {
     double candleW = KLineConfig.candleWidth(width);
     int candleCount = KLineConfig.shared.candleCount;
 
-
-    double valueOffset = max - min;
+    double valueOffset = maxValue - minValue;
     double indicatorX = spacing + candleW * 0.5;
 
     List<String> maInfoList = [];
     for (int idx = 0;idx < periods.length; ++idx) {
-      if (dataList.isEmpty) {
-        debugPrint('debug:data is empty');
-        return;
-      }
+      if (dataList.isEmpty) return;
       if (dataList.length == idx) {
         debugPrint('debug:dataList.length == idx');
         continue;
@@ -57,17 +53,19 @@ class IndicatorLinePainter  {
           debugPrint('debug:range error, type:$type, index:${i - beginIdx}, length:${dataList[idx].length}');
           continue;
         }
-        // if (i.round() < period) {
-        //   debugPrint('debug:i - beginIdx < period, beginIdx:$beginIdx, i:$i');
-        //   continue;
-        // }
-        double value = dataList[idx][(i - beginIdx).round()];
-        if (value < 0) {
-          // debugPrint('debug:value < 0, type:$type i:$i, beginIdx:$beginIdx, value:$value');
-          continue;
+        if (type == IndicatorType.kdj) {
+          int firstPeriod = periods.first;
+          if (i.round() < firstPeriod - 1) continue;
+        } else {
+          if (i.round()  < period - 1) continue;
         }
+
+        double value = dataList[idx][(i - beginIdx).round()];
+        // if (type == IndicatorType.kdj && periods.length == 3) {
+        //   debugPrint('111111 index:${(i - beginIdx).round()}, i:$i, begin:$beginIdx value:$value');
+        // }
         lastValue = value;
-        double indicatorY = drawAreaHeight * (1 - (value - min) / valueOffset) + top;
+        double indicatorY = drawAreaHeight * (1 - (value - minValue) / valueOffset) + top;
         if (type.isMain) indicatorY += KLineConfig.shared.mainIndicatorInfoMargin;
         indicatorY += KLineConfig.shared.indicatorInfoHeight;
 

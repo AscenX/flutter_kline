@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kline/kline_config.dart';
+import 'package:kline/kline_controller.dart';
 import 'package:kline/kline_data.dart';
 
 
@@ -24,19 +24,19 @@ class MACDPainter  {
       ..isAntiAlias = true;
 
 
-    double height = KLineConfig.shared.subIndicatorHeight;
+    double height = KLineController.shared.subIndicatorHeight;
     double width = size.width;
 
-    double spacing = KLineConfig.shared.spacing;
-    double candleW = KLineConfig.candleWidth(width);
-    int candleCount = KLineConfig.shared.candleCount;
+    double spacing = KLineController.shared.spacing;
+    double candleW = KLineController.candleWidth(width);
+    int candleCount = KLineController.shared.candleCount;
 
     // 最高最低差
     double valueOffset = max;
     double rectLeft = spacing;
-    double btmMargin = KLineConfig.shared.klineMargin.bottom;
+    double btmMargin = KLineController.shared.klineMargin.bottom;
 
-    List showSubIndicators = KLineConfig.shared.showSubIndicators;
+    List showSubIndicators = KLineController.shared.showSubIndicators;
     int subIndicatorCount = showSubIndicators.length;
 
     double originY = size.height;

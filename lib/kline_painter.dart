@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:kline/indicators/indicator_data_handler.dart';
-import 'package:kline/kline_config.dart';
+import 'package:kline/kline_controller.dart';
 import 'package:kline/indicators/indicator_line_painter.dart';
 import 'package:kline/indicators/vol_painter.dart';
 import 'package:kline/kline_data.dart';
@@ -56,24 +56,24 @@ class KLinePainter extends CustomPainter {
     if (klineData.isEmpty) return;
 
 
-    List showSubIndicators = KLineConfig.shared.showSubIndicators;
+    List showSubIndicators = KLineController.shared.showSubIndicators;
     int subIndicatorCount = showSubIndicators.length;
 
-    double spacing = KLineConfig.shared.spacing;
-    double candleW = KLineConfig.candleWidth(size.width);
-    int candleCount = KLineConfig.shared.candleCount;
+    double spacing = KLineController.shared.spacing;
+    double candleW = KLineController.candleWidth(size.width);
+    int candleCount = KLineController.shared.candleCount;
 
-    double mainTopMargin = KLineConfig.shared.klineMargin.top;
-    double mainInfoMargin = KLineConfig.shared.mainIndicatorInfoMargin;
+    double mainTopMargin = KLineController.shared.klineMargin.top;
+    double mainInfoMargin = KLineController.shared.mainIndicatorInfoMargin;
 
-    double indicatorInfoHeight = KLineConfig.shared.indicatorInfoHeight;
-    double indicatorSpacing = KLineConfig.shared.indicatorSpacing;
+    double indicatorInfoHeight = KLineController.shared.indicatorInfoHeight;
+    double indicatorSpacing = KLineController.shared.indicatorSpacing;
 
     // main draw area height
-    double mainHeight = size.height - (KLineConfig.shared.subIndicatorHeight + indicatorSpacing) * subIndicatorCount
-        - KLineConfig.shared.klineMargin.bottom;
+    double mainHeight = size.height - (KLineController.shared.subIndicatorHeight + indicatorSpacing) * subIndicatorCount
+        - KLineController.shared.klineMargin.bottom;
 
-    if (KLineConfig.shared.showMainIndicators.isNotEmpty) {
+    if (KLineController.shared.showMainIndicators.isNotEmpty) {
       mainTopMargin += (indicatorInfoHeight + mainInfoMargin);
     }
     mainHeight -= mainTopMargin;
@@ -115,8 +115,8 @@ class KLinePainter extends CustomPainter {
     double mainHighest = highest, mainLowest = lowest;
 
     List<List<double>> mainIndicatorData = [];
-    bool isShowMA = KLineConfig.shared.showMainIndicators.contains(IndicatorType.ma);
-    bool isShowEMA = KLineConfig.shared.showMainIndicators.contains(IndicatorType.ema);
+    bool isShowMA = KLineController.shared.showMainIndicators.contains(IndicatorType.ma);
+    bool isShowEMA = KLineController.shared.showMainIndicators.contains(IndicatorType.ema);
     if (isShowMA || isShowEMA) {
       List<int> indicatorPeriods = isShowMA ? [7, 30] : [7, 25];
       List handleData = [];
@@ -134,10 +134,10 @@ class KLinePainter extends CustomPainter {
       }
     }
 
-    bool isShowBOLL = KLineConfig.shared.showMainIndicators.contains(IndicatorType.boll);
+    bool isShowBOLL = KLineController.shared.showMainIndicators.contains(IndicatorType.boll);
     if (isShowBOLL) {
-      int bollPeriod = KLineConfig.shared.bollPeriod;
-      int bollBandwidth = KLineConfig.shared.bollBandwidth;
+      int bollPeriod = KLineController.shared.bollPeriod;
+      int bollBandwidth = KLineController.shared.bollBandwidth;
 
       List bollData = IndicatorDataHandler.boll(klineData, bollPeriod, bollBandwidth, beginIdx);
       mainIndicatorData = bollData[0];
@@ -148,14 +148,14 @@ class KLinePainter extends CustomPainter {
       if (bollMin < lowest && bollMin != 0.0) lowest = bollMin;
     }
 
-    drawRulerLine(canvas, mainHeight, size.width, indicatorInfoHeight + KLineConfig.shared.mainIndicatorInfoMargin, mainHighest, mainLowest);
+    drawRulerLine(canvas, mainHeight, size.width, indicatorInfoHeight + KLineController.shared.mainIndicatorInfoMargin, mainHighest, mainLowest);
     
     // KDJ, WR
     Map<IndicatorType, dynamic> subIndicatorData = {};
     Map<IndicatorType, double> subHighest = {}, subLowest = {};
     IndicatorType kdjType = IndicatorType.kdj;
     if (showSubIndicators.contains(kdjType)) {
-      List dataList = IndicatorDataHandler.kdj(klineData, KLineConfig.shared.kdjPeriods, beginIdx);
+      List dataList = IndicatorDataHandler.kdj(klineData, KLineController.shared.kdjPeriods, beginIdx);
       if (dataList.length == 3) {
         subIndicatorData[kdjType] = dataList[0];
         subHighest[kdjType] = dataList[1];
@@ -164,7 +164,7 @@ class KLinePainter extends CustomPainter {
     }
     IndicatorType wrType = IndicatorType.wr;
     if (showSubIndicators.contains(wrType)) {
-      List dataList = IndicatorDataHandler.wr(klineData, KLineConfig.shared.wrPeriods, beginIdx);
+      List dataList = IndicatorDataHandler.wr(klineData, KLineController.shared.wrPeriods, beginIdx);
       if (dataList.length == 3) {
         subIndicatorData[wrType] = dataList[0];
         subHighest[wrType] = dataList[1];
@@ -228,19 +228,19 @@ class KLinePainter extends CustomPainter {
 
     if (isShowMA || isShowEMA) {
       List<int> indicatorPeriods = isShowMA ? [7, 30] : [7, 25];
-      IndicatorLinePainter.paint(canvas, size, mainHeight, KLineConfig.shared.showMainIndicators.first, mainIndicatorData, indicatorPeriods, beginIdx, slideOffset, highest, lowest, top: KLineConfig.shared.klineMargin.top, debugData: klineData);
+      IndicatorLinePainter.paint(canvas, size, mainHeight, KLineController.shared.showMainIndicators.first, mainIndicatorData, indicatorPeriods, beginIdx, slideOffset, highest, lowest, top: KLineController.shared.klineMargin.top, debugData: klineData);
     }
 
     if (isShowBOLL) {
       // List<int> indicatorPeriods = isShowMA ? [7, 30] : [7, 25];
-      int bollPeriod = KLineConfig.shared.bollPeriod;
-      IndicatorLinePainter.paint(canvas, size, mainHeight, KLineConfig.shared.showMainIndicators.first, mainIndicatorData, [bollPeriod,bollPeriod,bollPeriod], beginIdx, slideOffset, highest, lowest, top: KLineConfig.shared.klineMargin.top);
+      int bollPeriod = KLineController.shared.bollPeriod;
+      IndicatorLinePainter.paint(canvas, size, mainHeight, KLineController.shared.showMainIndicators.first, mainIndicatorData, [bollPeriod,bollPeriod,bollPeriod], beginIdx, slideOffset, highest, lowest, top: KLineController.shared.klineMargin.top);
     }
 
     // draw sub indicator
-    double indicatorH = KLineConfig.shared.subIndicatorHeight;
+    double indicatorH = KLineController.shared.subIndicatorHeight;
 
-    if (KLineConfig.shared.showSubIndicators.contains(IndicatorType.vol)) {
+    if (KLineController.shared.showSubIndicators.contains(IndicatorType.vol)) {
       VolPainter(klineData, beginIdx).paint(canvas, size, maxVolume, slideOffset);
     }
     // if (KLineConfig.shared.showSubIndicators.contains(IndicatorType.macd)) {
@@ -252,9 +252,9 @@ class KLinePainter extends CustomPainter {
       int orderIdx = subIndicatorCount - idx;
       double subTop = size.height - orderIdx * (indicatorH + indicatorSpacing) + indicatorSpacing;
       if (type.isLine) {
-        IndicatorLinePainter.paint(canvas, size, indicatorH - KLineConfig.shared.indicatorInfoHeight,
-            type, subIndicatorData[type], KLineConfig.shared.currentPeriods(type),
-            beginIdx, slideOffset, subHighest[type] ?? 0.0, subLowest[type] ?? 0.0, top:subTop, lineColors: KLineConfig.shared.indicatorColors);
+        IndicatorLinePainter.paint(canvas, size, indicatorH - KLineController.shared.indicatorInfoHeight,
+            type, subIndicatorData[type], KLineController.shared.currentPeriods(type),
+            beginIdx, slideOffset, subHighest[type] ?? 0.0, subLowest[type] ?? 0.0, top:subTop, lineColors: KLineController.shared.indicatorColors);
       }
     }
 

@@ -32,7 +32,7 @@ enum IndicatorType {
 }
 
 
-class KLineConfig {
+class KLineController {
 
   bool isDebug = true;
   Color randomColor = Color.fromARGB(100, Random().nextInt(255), Random().nextInt(255), Random().nextInt(255));
@@ -92,7 +92,7 @@ class KLineConfig {
   List<int> wrPeriods = [7,14];
 
   List<int> currentPeriods(IndicatorType type) {
-    KLineConfig config = KLineConfig.shared;
+    KLineController config = KLineController.shared;
     if (type == IndicatorType.kdj) {
       return config.kdjPeriods;
     } else if (type == IndicatorType.wr) {
@@ -104,16 +104,16 @@ class KLineConfig {
   List<Color> indicatorColors = [Colors.orange, Colors.purple, Colors.blue];
 
   static double candleWidth(double width) {
-    double spacing = KLineConfig.shared.spacing;
-    int candleCount = KLineConfig.shared.candleCount;
+    double spacing = KLineController.shared.spacing;
+    int candleCount = KLineController.shared.candleCount;
     // 蜡烛宽度 = 总宽度 / 蜡烛数 - 蜡烛之间的间距，间距数量和蜡烛数量相等
     double candleW = width / candleCount - spacing;
-    KLineConfig.shared.currentCandleW = candleW;
+    KLineController.shared.currentCandleW = candleW;
     return candleW;
   }
 
   // singleton
-  KLineConfig._internal();
-  static final KLineConfig shared = KLineConfig._internal();
-  factory KLineConfig() => shared;
+  KLineController._internal();
+  static final KLineController shared = KLineController._internal();
+  factory KLineController() => shared;
 }

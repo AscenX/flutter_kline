@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:kline/kline_config.dart';
+import 'package:kline/kline_controller.dart';
 import 'package:kline/kline_data.dart';
 import 'package:kline/kline_painter.dart';
 import 'package:flutter/services.dart';
@@ -38,14 +38,14 @@ class _KLineViewState extends State<KLineView> {
   }
 
   void _klineDidScroll(double offsetX) {
-    double candleW = KLineConfig.shared.currentCandleW;
-    double spacing = KLineConfig.shared.spacing;
+    double candleW = KLineController.shared.currentCandleW;
+    double spacing = KLineController.shared.spacing;
     double nowIdx = offsetX / (candleW + spacing);
     // print("_klineDidScroll--------- nowIdx:$nowIdx, data length:$_dataLength");
     if (nowIdx < 0) {
       _beginIdx = 0.0;
     } else {
-        if (nowIdx + KLineConfig.shared.candleCount > _dataLength) {
+        if (nowIdx + KLineController.shared.candleCount > _dataLength) {
           // print("00000000 return:$nowIdx, count:${KLineConfig.shared.candleCount}, dataLength: $_dataLength");
           return;
         }
@@ -73,15 +73,15 @@ class _KLineViewState extends State<KLineView> {
 
     int count = 30;
 
-    count = KLineConfig.shared.candleCount + ((1 - _currentScale) * 10).round();
+    count = KLineController.shared.candleCount + ((1 - _currentScale) * 10).round();
 
-    int maxCount = _dataLength > KLineConfig.shared.maxCandleCount ? KLineConfig.shared.maxCandleCount : _dataLength;
+    int maxCount = _dataLength > KLineController.shared.maxCandleCount ? KLineController.shared.maxCandleCount : _dataLength;
     count = count > maxCount ? maxCount : count;
-    count = count < KLineConfig.shared.minCandleCount ? KLineConfig.shared.minCandleCount : count;
+    count = count < KLineController.shared.minCandleCount ? KLineController.shared.minCandleCount : count;
     if (count + _beginIdx >= _dataLength) {
       _beginIdx = (_dataLength - count).toDouble();
     }
-    KLineConfig.shared.candleCount = count;
+    KLineController.shared.candleCount = count;
     setState(() {
     });
   }
@@ -89,7 +89,7 @@ class _KLineViewState extends State<KLineView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: KLineConfig.shared.klineMargin,
+      margin: KLineController.shared.klineMargin,
       // color: KLineConfig.shared.isDebug ? Colors.deepPurple.withAlpha(80) : null,
       child: FutureBuilder(
             future: _loadJson(),
@@ -107,9 +107,9 @@ class _KLineViewState extends State<KLineView> {
                   double containerW = constraints.biggest.width;
                   double containerH = constraints.biggest.height;
 
-                  int candleCount = KLineConfig.shared.candleCount;
-                  double candleW = KLineConfig.candleWidth(containerW);
-                  double spacing = KLineConfig.shared.spacing;
+                  int candleCount = KLineController.shared.candleCount;
+                  double candleW = KLineController.candleWidth(containerW);
+                  double spacing = KLineController.shared.spacing;
                   // 计算滑动size
                   double contentSizeW = dataLength * (candleW + spacing);
                   if (_beginIdx < 0) { // init
@@ -119,7 +119,6 @@ class _KLineViewState extends State<KLineView> {
                     // double beginOffset = _beginIdx / dataLength * contentSizeW;
                     double beginOffset = dataLength < candleCount ? 0.0 : contentSizeW - containerW;
                     _initScrollController(beginOffset);
-                    print("init, size:($containerW, $containerH), _beginIdx:$_beginIdx, dataLength:$dataLength, candleCount: $candleCount");
                   }
 
                   // double klineHeight = containerH - KLineConfig.shared.indicatorHeight;

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:kline/kline_config.dart';
+import 'package:kline/kline_controller.dart';
 import 'package:kline/kline_view.dart';
 
 void main() {
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-        title: "flutter_kline demo app", home: MyHomePage(title: 'kline'));
+        title: "flutter_kline demo app", home: MyHomePage(title: 'flutter_kline demo'));
   }
 }
 
@@ -28,9 +28,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<String> mainIndicators =
-      KLineConfig.shared.showMainIndicators.map((e) => e.name).toList();
+      KLineController.shared.showMainIndicators.map((e) => e.name).toList();
   List<String> subIndicators =
-      KLineConfig.shared.showSubIndicators.map((e) => e.name).toList();
+      KLineController.shared.showSubIndicators.map((e) => e.name).toList();
 
   Widget buildIndicator(
       String name, bool isMain, void Function(String, bool) click) {
@@ -56,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
         mainIndicators.add(name);
       }
 
-      KLineConfig.shared.showMainIndicators =
+      KLineController.shared.showMainIndicators =
           mainIndicators.map((e) => IndicatorType.fromName(e)).toList();
     } else {
       if (subIndicators.contains(name)) {
@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
       } else {
         subIndicators.add(name);
       }
-      KLineConfig.shared.showSubIndicators =
+      KLineController.shared.showSubIndicators =
           subIndicators.map((e) => IndicatorType.fromName(e)).toList();
     }
     setState(() {});

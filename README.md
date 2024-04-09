@@ -14,15 +14,18 @@
 - ~~KDJ sub indicator~~
 - ~~WR sub indicator~~
 
+- Right scale area
+- Long press info display
+- Improve accuracy
+- Time line Chart
+- Publish to pub.dev
+
 - MACD sub indicator
 - RSI sub indicator
-- Time line Chart
+- SAR  indicator
+- OBV indicator
+
 - Highly customized
 - Fit all screens
 - Performance optimization
-- Improve accuracy
 - Finish usage document
-- Publish to pub.dev
-
-- SAR  indicator
-- OBV indicator

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kline/indicators/indicator_line_painter.dart';
+import 'package:kline/indicators/indicator_result.dart';
 import 'package:kline/kline_controller.dart';
 import 'package:kline/kline_data.dart';
 import 'package:kline/indicators/indicator_data_handler.dart';
@@ -35,16 +36,11 @@ class VolPainter  {
     double min = 0.0;
     // calculated MA volume
     List<int> maPeriods = KLineController.shared.volMaPeriods;
-    List maDataList = IndicatorDataHandler.ma(klineData, maPeriods, beginIdx, isVol: true);
+    IndicatorResult maRes = IndicatorDataHandler.ma(klineData, maPeriods, beginIdx, isVol: true);
     List<List<double>> maList = [];
-    double maMax = 0.0;
-    if (maDataList.length == 3) {
-      maList = maDataList.first;
-      maMax = maDataList[1];
-      double maMin = maDataList[2];
-      if (maMax > max) max = maMax;
-      // if (maMin < min) min = maMin;
-    }
+    double maMax = maRes.maxValue;
+    maList = maRes.data;
+    if (maMax > max) max = maMax;
 
     double valueOffset = max;
     double rectLeft = spacing;

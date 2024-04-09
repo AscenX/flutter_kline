@@ -1,13 +1,16 @@
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
+import 'package:kline/indicators/indicator_result.dart';
 import 'package:kline/kline_controller.dart';
 import 'package:kline/kline_data.dart';
 
 class IndicatorDataHandler {
-  static List ma(List<KLineData> klineData, List<int> periods, double beginIdx,
+
+  static IndicatorResult ma(
+      List<KLineData> klineData, List<int> periods, double beginIdx,
       {bool isVol = false}) {
-    if (klineData.isEmpty || periods.isEmpty) return [];
+    if (klineData.isEmpty || periods.isEmpty) return IndicatorResult.empty;
 
     List<List<double>> maData = [];
     double max = 0.0;
@@ -48,12 +51,12 @@ class IndicatorDataHandler {
 
       maData.add(maList);
     }
-    return [maData, max, min];
+    return IndicatorResult(maData, max, min);
   }
 
-  static List ema(
+  static IndicatorResult ema(
       List<KLineData> klineData, List<int> periods, double beginIdx) {
-    if (klineData.isEmpty) return [];
+    if (klineData.isEmpty) return IndicatorResult.empty;
 
     List<List<double>> emaData = [];
     double max = 0.0;
@@ -99,7 +102,7 @@ class IndicatorDataHandler {
           emaList.sublist(start.round(), start.round() + candleCount);
       emaData.add(subList);
     }
-    return [emaData, max, min];
+    return IndicatorResult(emaData, max, min);
   }
 
   static double _calculateStandardDeviation(List<double> values) {
@@ -110,9 +113,10 @@ class IndicatorDataHandler {
     return sqrt(variance);
   }
 
-  static List boll(
+  static IndicatorResult boll(
       List<KLineData> klineData, int period, int bandwidth, double beginIdx) {
-    if (klineData.isEmpty || period < 0 || bandwidth < 0) return [];
+    if (klineData.isEmpty || period < 0 || bandwidth < 0)
+      return IndicatorResult.empty;
 
     List<double> upList = [];
     List<double> mbList = [];
@@ -150,15 +154,12 @@ class IndicatorDataHandler {
       minValue = min(dnList[i], minValue);
     }
 
-    return [
-      [mbList, upList, dnList],
-      maxValue,
-      minValue
-    ];
+    return IndicatorResult([mbList, upList, dnList], maxValue, minValue);
   }
 
-  static List macd(List<KLineData> klineData, List periods, double beginIdx) {
-    return [];
+  static IndicatorResult macd(
+      List<KLineData> klineData, List periods, double beginIdx) {
+    return IndicatorResult.empty;
   }
 
   static double _emaCalculate(List<double> values, int period) {
@@ -176,11 +177,7 @@ class IndicatorDataHandler {
 
   static void calculateMACD(
       List<double> values, int shortPeriod, int longPeriod, int signalPeriod) {
-    if (values.length < longPeriod) {
-      throw Exception("数据点数量不足");
-    }
 
-    // 计算短期移动平均线
     List<double> shortEMA = [];
     for (int i = longPeriod - shortPeriod; i < values.length; i++) {
       List<double> subset = values.sublist(i - shortPeriod + 1, i + 1);
@@ -188,7 +185,6 @@ class IndicatorDataHandler {
       shortEMA.add(ema);
     }
 
-    // 计算长期移动平均线
     List<double> longEMA = [];
     for (int i = longPeriod - 1; i < values.length; i++) {
       List<double> subset = values.sublist(i - longPeriod + 1, i + 1);
@@ -196,13 +192,11 @@ class IndicatorDataHandler {
       longEMA.add(ema);
     }
 
-    // 计算DIF（快线）
     List<double> dif = [];
     for (int i = 0; i < longEMA.length; i++) {
       dif.add(shortEMA[i] - longEMA[i]);
     }
 
-    // 计算DEA（慢线）
     List<double> dea = [];
     for (int i = signalPeriod - 1; i < dif.length; i++) {
       List<double> subset = dif.sublist(i - signalPeriod + 1, i + 1);
@@ -210,89 +204,16 @@ class IndicatorDataHandler {
       dea.add(ema);
     }
 
-    // 计算MACD（柱状线）
     List<double> macd = [];
     for (int i = 0; i < dif.length; i++) {
       macd.add(2 * (dif[i] - dea[i]));
     }
 
-    print("DIF: $dif");
-    print("DEA: $dea");
-    print("MACD: $macd");
   }
 
-  // static List kdj(List<KLineData> klineData, List<int> periods, double beginIdx) {
-  //   if (klineData.isEmpty || periods.length != 3) return [];
-  //   int period1 = periods[0];
-  //   int period2 = periods[1];
-  //   int period3 = periods[2];
-  //
-  //   double lastK = 0.0, lastD = 0.0;
-  //
-  //   List<double> kValues = [], dValues = [], jValues = [];
-  //   double maxValue = 0.0, minValue = 0.0;
-  //   for(var i = 0;i < klineData.length; ++i) {
-  //     KLineData data = klineData[i];
-  //     if (i == 0) {
-  //       double rsv = (data.close - data.low) / (data.high - data.low) * 100;
-  //       lastK = lastD = rsv;
-  //       // kValues.add(lastK);
-  //       // dValues.add(lastD);
-  //       // jValues.add(lastK * 3 - lastD * 2);
-  //       continue;
-  //     }
-  //
-  //     int startIdx = i >= period1 ? i - period1 + 1 : 0;
-  //     int length = i >= period1 ? period1 : i;
-  //     // print('111111 length:$length');
-  //     List<KLineData> sublist = klineData.sublist(startIdx, startIdx + length);
-  //     double hn = sublist.first.high;
-  //     double ln = sublist.first.low;
-  //     for (int j = 0;j < sublist.length; ++j) {
-  //       KLineData subData = sublist[j];
-  //       hn = max(hn, subData.high);
-  //       ln = min(ln, subData.low);
-  //     }
-  //     if (ln == hn) return [];
-  //
-  //
-  //     int candleCount = KLineController.shared.candleCount;
-  //     if (i >= beginIdx.round() && i < beginIdx.round() + candleCount) {
-  //
-  //       double rsv = (data.close - ln) / (hn - ln) * 100;
-  //       double kValue = (lastK * (period2 - 1) + rsv) / period2;
-  //       double dValue = (lastD * (period3 - 1) + kValue) / period3;
-  //       double jValue = kValue * 3 - dValue * 2;
-  //
-  //       if (i >= period1) {
-  //         if (kValue > maxValue || maxValue == 0.0) maxValue = kValue;
-  //         if (dValue > maxValue) maxValue = dValue;
-  //         if (jValue > maxValue) maxValue = jValue;
-  //         if (kValue < minValue || minValue == 0.0) minValue = kValue;
-  //         if (dValue < minValue) minValue = dValue;
-  //         if (jValue < minValue) minValue = jValue;
-  //       }
-  //
-  //       if (i == 8) {
-  //         debugPrint('1111111 i:$i, startIdx:$startIdx, rsv:$rsv,  K:$kValue, D:$dValue, J:$jValue, sub:${sublist.length}');
-  //       }
-  //
-  //       kValues.add(kValue);
-  //       dValues.add(dValue);
-  //       jValues.add(jValue);
-  //
-  //       lastK = kValue;
-  //       lastD = dValue;
-  //     }
-  //   }
-  //
-  //   List res = [[kValues, dValues, jValues], maxValue, minValue];
-  //   return res;
-  // }
-
-  static List kdj(
+  static IndicatorResult kdj(
       List<KLineData> klineData, List<int> periods, double beginIdx) {
-    if (klineData.isEmpty || periods.length != 3) return [];
+    if (klineData.isEmpty || periods.length != 3) return IndicatorResult.empty;
     int period1 = periods[0];
     int period2 = periods[1];
     int period3 = periods[2];
@@ -326,7 +247,7 @@ class IndicatorDataHandler {
         hn = hn > subData.high ? hn : subData.high;
         ln = ln < subData.low ? ln : subData.low;
       }
-      if (ln == hn) return [[], [], [], 0.0, 0.0];
+      if (ln == hn) return IndicatorResult.empty;
 
       double rsv = (data.close - ln) / (hn - ln) * 100;
       double kValue = (lastK * (period2 - 1) + rsv) / period2;
@@ -350,23 +271,18 @@ class IndicatorDataHandler {
       lastD = dValue;
     }
 
-    return [
-      [kValues, dValues, jValues],
-      maxValue,
-      minValue
-    ];
+    return IndicatorResult([kValues, dValues, jValues], maxValue, minValue);
   }
 
-  static List wr(
-      List<KLineData> klineData, List<int> periods, double beginIdx) {
-    if (klineData.isEmpty || periods.isEmpty) return [];
+  static IndicatorResult wr(List<KLineData> klineData, List<int> periods, double beginIdx) {
+    if (klineData.isEmpty || periods.isEmpty) return IndicatorResult.empty;
     List<List<double>> dataList = [];
     double max = 0.0, min = 0.0;
+    int candleCount = KLineController.shared.candleCount;
     for (var idx = 0; idx < periods.length; ++idx) {
       int period = periods[idx];
       List<double> wrList = [];
 
-      int candleCount = KLineController.shared.candleCount;
       for (var i = beginIdx; i < beginIdx + candleCount; ++i) {
         double end = i + 1;
         double start = i < period ? 0 : i - period;
@@ -386,6 +302,40 @@ class IndicatorDataHandler {
       }
       dataList.add(wrList);
     }
-    return [dataList, max, min];
+    return IndicatorResult(dataList, max, min);
+  }
+
+  static IndicatorResult obv(List<KLineData> klineData, double beginIdx) {
+    List<double> obvValues = [];
+    double obv = 0.0;
+    double prevClose = 0.0;
+
+    int candleCount = KLineController.shared.candleCount;
+    double endIndex = beginIdx + candleCount;
+    endIndex = endIndex < klineData.length ? endIndex : klineData.length.roundToDouble();
+
+    double maxValue = 0.0;
+    double minValue = 0.0;
+    for (var i = 0; i < endIndex; i++) {
+      KLineData data = klineData[i];
+
+      if (i > beginIdx) {
+        if (data.close > prevClose) {
+          obv += data.volume;
+        } else if (data.close < prevClose) {
+          obv -= data.volume;
+        }
+        if (obv > maxValue || maxValue == 0.0) maxValue = obv;
+        if (obv < minValue || minValue == 0.0) minValue = obv;
+      }
+
+      prevClose = data.close;
+
+      if (i >= beginIdx.round() && i < (beginIdx + candleCount).round()) {
+        obvValues.add(obv);
+      }
+    }
+
+    return IndicatorResult([obvValues], maxValue, minValue);
   }
 }

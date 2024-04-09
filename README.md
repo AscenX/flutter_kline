@@ -13,8 +13,9 @@
 - ~~VOL sub indicator~~
 - ~~KDJ sub indicator~~
 - ~~WR sub indicator~~
+- ~~OBV indicator~~
 
-- Right scale area
+- Y-axis number scale
 - Long press info display
 - Improve accuracy
 - Time line Chart
@@ -23,7 +24,6 @@
 - MACD sub indicator
 - RSI sub indicator
 - SAR  indicator
-- OBV indicator
 
 - Highly customized
 - Fit all screens

@@ -6,14 +6,14 @@ enum IndicatorType {
   ma(name: "MA"),
   ema(name: "EMA"),
   boll(name: "BOLL"),
-  sar(name: 'SAR'),
+  // sar(name: 'SAR'),
 
   // sub
   vol(name: "VOL", isLine: false),
   maVol(name: "MAVOL"), // same as ma, use for volume's ma
-  macd(name: "MACD", isLine: false),
+  // macd(name: "MACD", isLine: false),
   kdj(name: "KDJ"),
-  rsi(name: "RSI"),
+  // rsi(name: "RSI"),
   wr(name: "WR"),
   obv(name: 'OBV');
 
@@ -97,6 +97,8 @@ class KLineController {
       return config.kdjPeriods;
     } else if (type == IndicatorType.wr) {
       return config.wrPeriods;
+    } else if (type == IndicatorType.obv) {
+      return [0];
     }
     return [];
   }

@@ -66,10 +66,8 @@ class KLinePainter extends CustomPainter {
     double indicatorSpacing = KLineController.shared.indicatorSpacing;
 
     // main draw area height
-    double mainHeight = size.height -
-        (KLineController.shared.subIndicatorHeight + indicatorSpacing) *
-            subIndicatorCount -
-        KLineController.shared.klineMargin.bottom;
+    double mainHeight =
+        size.height - (KLineController.shared.subIndicatorHeight + indicatorSpacing) * subIndicatorCount - KLineController.shared.klineMargin.bottom;
 
     if (KLineController.shared.showMainIndicators.isNotEmpty) {
       mainTopMargin += (indicatorInfoHeight + mainInfoMargin);
@@ -113,10 +111,8 @@ class KLinePainter extends CustomPainter {
     double mainHighest = highest, mainLowest = lowest;
 
     List<List<double>> mainIndicatorData = [];
-    bool isShowMA =
-        KLineController.shared.showMainIndicators.contains(IndicatorType.ma);
-    bool isShowEMA =
-        KLineController.shared.showMainIndicators.contains(IndicatorType.ema);
+    bool isShowMA = KLineController.shared.showMainIndicators.contains(IndicatorType.ma);
+    bool isShowEMA = KLineController.shared.showMainIndicators.contains(IndicatorType.ema);
     if (isShowMA || isShowEMA) {
       List<int> indicatorPeriods = isShowMA ? [7, 30] : [7, 25];
       var res = IndicatorResult.empty;
@@ -130,18 +126,15 @@ class KLinePainter extends CustomPainter {
       double mainIndicatorMax = res.maxValue;
       double mainIndicatorMin = res.minValue;
       if (mainIndicatorMax > highest) highest = mainIndicatorMax;
-      if (mainIndicatorMin < lowest && mainIndicatorMin != 0.0)
-        lowest = mainIndicatorMin;
+      if (mainIndicatorMin < lowest && mainIndicatorMin != 0.0) lowest = mainIndicatorMin;
     }
 
-    bool isShowBOLL =
-        KLineController.shared.showMainIndicators.contains(IndicatorType.boll);
+    bool isShowBOLL = KLineController.shared.showMainIndicators.contains(IndicatorType.boll);
     if (isShowBOLL) {
       int bollPeriod = KLineController.shared.bollPeriod;
       int bollBandwidth = KLineController.shared.bollBandwidth;
 
-      var res = IndicatorDataHandler.boll(
-          klineData, bollPeriod, bollBandwidth, beginIdx);
+      var res = IndicatorDataHandler.boll(klineData, bollPeriod, bollBandwidth, beginIdx);
       mainIndicatorData = res.data;
       double bollMax = res.maxValue;
       double bollMin = res.minValue;
@@ -151,28 +144,21 @@ class KLinePainter extends CustomPainter {
     }
 
     drawRulerLine(
-        canvas,
-        mainHeight,
-        size.width,
-        indicatorInfoHeight + KLineController.shared.mainIndicatorInfoMargin,
-        mainHighest,
-        mainLowest);
+        canvas, mainHeight, size.width, indicatorInfoHeight + KLineController.shared.mainIndicatorInfoMargin, mainHighest, mainLowest, size);
 
     // KDJ, WR
     Map<IndicatorType, dynamic> subIndicatorData = {};
     Map<IndicatorType, double> subHighest = {}, subLowest = {};
     IndicatorType kdjType = IndicatorType.kdj;
     if (showSubIndicators.contains(kdjType)) {
-      var res = IndicatorDataHandler.kdj(
-          klineData, KLineController.shared.kdjPeriods, beginIdx);
+      var res = IndicatorDataHandler.kdj(klineData, KLineController.shared.kdjPeriods, beginIdx);
       subIndicatorData[kdjType] = res.data;
       subHighest[kdjType] = res.maxValue;
       subLowest[kdjType] = res.minValue;
     }
     IndicatorType wrType = IndicatorType.wr;
     if (showSubIndicators.contains(wrType)) {
-      var res = IndicatorDataHandler.wr(
-          klineData, KLineController.shared.wrPeriods, beginIdx);
+      var res = IndicatorDataHandler.wr(klineData, KLineController.shared.wrPeriods, beginIdx);
       subIndicatorData[wrType] = res.data;
       subHighest[wrType] = res.maxValue;
       subLowest[wrType] = res.minValue;
@@ -180,8 +166,7 @@ class KLinePainter extends CustomPainter {
 
     IndicatorType obvType = IndicatorType.obv;
     if (showSubIndicators.contains(obvType)) {
-      var res = IndicatorDataHandler.obv(
-          klineData, beginIdx);
+      var res = IndicatorDataHandler.obv(klineData, beginIdx);
       subIndicatorData[obvType] = res.data;
       subHighest[obvType] = res.maxValue;
       subLowest[obvType] = res.minValue;
@@ -205,10 +190,8 @@ class KLinePainter extends CustomPainter {
       double close = data.close;
 
       double lineX = rectLeft + candleW * 0.5 + slideOffset;
-      double lineTop =
-          mainHeight * (1 - (high - lowest) / valueOffset) + mainTopMargin;
-      double lineBtm =
-          mainHeight * (1 - (low - lowest) / valueOffset) + mainTopMargin;
+      double lineTop = mainHeight * (1 - (high - lowest) / valueOffset) + mainTopMargin;
+      double lineBtm = mainHeight * (1 - (low - lowest) / valueOffset) + mainTopMargin;
 
       if (i == highestIdx) {
         highestX = lineX;
@@ -221,65 +204,38 @@ class KLinePainter extends CustomPainter {
 
       if (close > open) {
         double candleH = (close - open) / valueOffset * mainHeight;
-        double rectTop =
-            mainHeight * (1 - (open - lowest) / valueOffset) + mainTopMargin;
+        double rectTop = mainHeight * (1 - (open - lowest) / valueOffset) + mainTopMargin;
         rectTop -= candleH; // rise starts at the top
-        canvas.drawRect(
-            Rect.fromLTWH(rectLeft + slideOffset, rectTop, candleW, candleH),
-            _riseRectPaint);
+        canvas.drawRect(Rect.fromLTWH(rectLeft + slideOffset, rectTop, candleW, candleH), _riseRectPaint);
         // draw line
-        canvas.drawLine(
-            Offset(lineX, lineTop), Offset(lineX, lineBtm), _riseLinePaint);
+        canvas.drawLine(Offset(lineX, lineTop), Offset(lineX, lineBtm), _riseLinePaint);
       } else {
         double candleH = (open - close) / valueOffset * mainHeight;
-        double rectTop =
-            mainHeight * (1 - (open - lowest) / valueOffset) + mainTopMargin;
-        canvas.drawRect(
-            Rect.fromLTWH(rectLeft + slideOffset, rectTop, candleW, candleH),
-            _fallRectPaint);
+        double rectTop = mainHeight * (1 - (open - lowest) / valueOffset) + mainTopMargin;
+        canvas.drawRect(Rect.fromLTWH(rectLeft + slideOffset, rectTop, candleW, candleH), _fallRectPaint);
         // draw line
-        canvas.drawLine(
-            Offset(lineX, lineTop), Offset(lineX, lineBtm), _fallLinePaint);
+        canvas.drawLine(Offset(lineX, lineTop), Offset(lineX, lineBtm), _fallLinePaint);
       }
       // debugPrint('drawRectLine:idx:${i.round()}, close:$close, centerX:$lineX');
 
       rectLeft += (candleW + spacing);
     }
 
-    drawText(canvas, "$mainHighest", Offset(highestX, highestY), size);
-    drawText(canvas, "$mainLowest", Offset(lowestX, lowestY), size);
+    drawHighestLowestText(canvas, "$mainHighest", Offset(highestX, highestY), size);
+    drawHighestLowestText(canvas, "$mainLowest", Offset(lowestX, lowestY), size);
 
     if (isShowMA || isShowEMA) {
       List<int> indicatorPeriods = isShowMA ? [7, 30] : [7, 25];
-      IndicatorLinePainter.paint(
-          canvas,
-          size,
-          mainHeight,
-          KLineController.shared.showMainIndicators.first,
-          mainIndicatorData,
-          indicatorPeriods,
-          beginIdx,
-          slideOffset,
-          highest,
-          lowest,
-          top: KLineController.shared.klineMargin.top,
-          debugData: klineData);
+      IndicatorLinePainter.paint(canvas, size, mainHeight, KLineController.shared.showMainIndicators.first, mainIndicatorData, indicatorPeriods,
+          beginIdx, slideOffset, highest, lowest,
+          top: KLineController.shared.klineMargin.top, debugData: klineData);
     }
 
     if (isShowBOLL) {
       // List<int> indicatorPeriods = isShowMA ? [7, 30] : [7, 25];
       int bollPeriod = KLineController.shared.bollPeriod;
-      IndicatorLinePainter.paint(
-          canvas,
-          size,
-          mainHeight,
-          KLineController.shared.showMainIndicators.first,
-          mainIndicatorData,
-          [bollPeriod, bollPeriod, bollPeriod],
-          beginIdx,
-          slideOffset,
-          highest,
-          lowest,
+      IndicatorLinePainter.paint(canvas, size, mainHeight, KLineController.shared.showMainIndicators.first, mainIndicatorData,
+          [bollPeriod, bollPeriod, bollPeriod], beginIdx, slideOffset, highest, lowest,
           top: KLineController.shared.klineMargin.top);
     }
 
@@ -287,8 +243,7 @@ class KLinePainter extends CustomPainter {
     double indicatorH = KLineController.shared.subIndicatorHeight;
 
     if (KLineController.shared.showSubIndicators.contains(IndicatorType.vol)) {
-      VolPainter(klineData, beginIdx)
-          .paint(canvas, size, maxVolume, slideOffset);
+      VolPainter(klineData, beginIdx).paint(canvas, size, maxVolume, slideOffset);
     }
     // if (KLineConfig.shared.showSubIndicators.contains(IndicatorType.macd)) {
     //   MACDPainter(klineData, beginIdx).paint(canvas, size, maxVolume);
@@ -297,32 +252,37 @@ class KLinePainter extends CustomPainter {
     for (var idx = subIndicatorCount - 1; idx >= 0; --idx) {
       var type = showSubIndicators[idx];
       int orderIdx = subIndicatorCount - idx;
-      double subTop = size.height -
-          orderIdx * (indicatorH + indicatorSpacing) +
-          indicatorSpacing;
+      double subTop = size.height - orderIdx * (indicatorH + indicatorSpacing) + indicatorSpacing;
       if (type.isLine) {
-        IndicatorLinePainter.paint(
-            canvas,
-            size,
-            indicatorH - KLineController.shared.indicatorInfoHeight,
-            type,
-            subIndicatorData[type],
-            KLineController.shared.currentPeriods(type),
-            beginIdx,
-            slideOffset,
-            subHighest[type] ?? 0.0,
-            subLowest[type] ?? 0.0,
-            top: subTop,
-            lineColors: KLineController.shared.indicatorColors);
+        IndicatorLinePainter.paint(canvas, size, indicatorH - KLineController.shared.indicatorInfoHeight, type, subIndicatorData[type],
+            KLineController.shared.currentPeriods(type), beginIdx, slideOffset, subHighest[type] ?? 0.0, subLowest[type] ?? 0.0,
+            top: subTop, lineColors: KLineController.shared.indicatorColors);
       }
     }
   }
 
+  void drawYAxisScaleText(Canvas canvas, Size canvasSize, double highest, double lowest) {}
+
   void drawText(Canvas canvas, String text, Offset offset, Size canvasSize) {
+    final painter = TextPainter(
+        textDirection: TextDirection.ltr,
+        maxLines: 1,
+        text: TextSpan(
+            text: text,
+            style: const TextStyle(
+              color: Color(0xff999999),
+              fontSize: 12.0,
+              height: 1.0,
+            )))
+      ..layout();
+
+    painter.paint(canvas, offset);
+  }
+
+  void drawHighestLowestText(Canvas canvas, String text, Offset offset, Size canvasSize) {
     // draw line
     double tranOffsetX = offset.dx < canvasSize.width * 0.5 ? 20 : -20;
-    canvas.drawLine(Offset(offset.dx + (tranOffsetX > 0.0 ? 2 : -2), offset.dy),
-        Offset(offset.dx + tranOffsetX, offset.dy), _minMaxLinePaint);
+    canvas.drawLine(Offset(offset.dx + (tranOffsetX > 0.0 ? 2 : -2), offset.dy), Offset(offset.dx + tranOffsetX, offset.dy), _minMaxLinePaint);
 
     final painter = TextPainter(
         textDirection: TextDirection.ltr,
@@ -338,26 +298,26 @@ class KLinePainter extends CustomPainter {
 
     double textHeight = 15.0;
     double offsetY = offset.dy - textHeight * 0.5;
-    painter.paint(
-        canvas,
-        Offset(
-            offset.dx +
-                tranOffsetX +
-                (tranOffsetX > 0 ? 5 : -painter.width - 5),
-            offsetY));
+    painter.paint(canvas, Offset(offset.dx + tranOffsetX + (tranOffsetX > 0 ? 5 : -painter.width - 5), offsetY));
   }
 
-  void drawRulerLine(Canvas canvas, double height, double width, double top,
-      double highestPrice, double lowestPrice) {
-    for (var i = 1; i < 5; ++i) {
-      canvas.drawLine(Offset(0, height * i / 5 + top),
-          Offset(width, height * i / 5 + top), _rulerPaint);
+  void drawRulerLine(Canvas canvas, double height, double width, double top, double highestPrice, double lowestPrice, Size canvasSize) {
+    double priceOffset = highestPrice - lowestPrice;
+    var ctr = KLineController.shared;
+    double scaleTop = ctr.mainIndicatorInfoMargin + ctr.indicatorInfoHeight + ctr.klineMargin.top;
+    double scaleHeight = height - 12.0; // mainHeight - fontHeight
+    // draw main ruler
+    for (var i = 0; i < 5; ++i) {
+      // draw vertical line
+      canvas.drawLine(Offset(width * i / 5, 0), Offset(width * i / 5, canvasSize.height), _rulerPaint);
+      // draw horizontal line
+      if (i > 0) canvas.drawLine(Offset(0, height * i / 4 + top), Offset(width, height * i / 4 + top), _rulerPaint);
+      // draw rule text
+      drawText(canvas, '${highestPrice - priceOffset * i / 4}', Offset(width - 56, scaleHeight * i / 4 + scaleTop), canvasSize);
     }
 
-    for (var i = 1; i < 5; ++i) {
-      canvas.drawLine(Offset(width * i / 5, top),
-          Offset(width * i / 5, height + top), _rulerPaint);
-    }
+    // draw sub indicator's ruler
+    
   }
 
   @override

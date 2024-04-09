@@ -34,7 +34,7 @@ enum IndicatorType {
 
 class KLineController {
 
-  bool isDebug = true;
+  bool isDebug = false;
   Color randomColor = Color.fromARGB(100, Random().nextInt(255), Random().nextInt(255), Random().nextInt(255));
   void drawDebugRect(Canvas canvas, Rect rect, Color color) {
     canvas.drawRect(rect, Paint()

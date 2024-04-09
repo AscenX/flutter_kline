@@ -15,7 +15,7 @@
 - ~~WR sub indicator~~
 - ~~OBV indicator~~
 
-- Y-axis number scale
+- Y-axis ruler text
 - Long press info display
 - Improve accuracy
 - Time line Chart

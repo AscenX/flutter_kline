@@ -14,8 +14,7 @@
 - ~~KDJ sub indicator~~
 - ~~WR sub indicator~~
 - ~~OBV indicator~~
-
-- Y-axis ruler text
+- ~~Y-axis ruler text~~
 - Long press info display
 - Improve accuracy
 - Time line Chart

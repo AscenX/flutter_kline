@@ -143,8 +143,7 @@ class KLinePainter extends CustomPainter {
       if (bollMin < lowest && bollMin != 0.0) lowest = bollMin;
     }
 
-    drawRulerLine(
-        canvas, mainHeight, size.width, indicatorInfoHeight + KLineController.shared.mainIndicatorInfoMargin, mainHighest, mainLowest, size);
+    drawRulerLine(canvas, mainHeight, size.width, indicatorInfoHeight + KLineController.shared.mainIndicatorInfoMargin, highest, lowest, size);
 
     // KDJ, WR
     Map<IndicatorType, dynamic> subIndicatorData = {};
@@ -249,10 +248,18 @@ class KLinePainter extends CustomPainter {
     //   MACDPainter(klineData, beginIdx).paint(canvas, size, maxVolume);
     // }
 
+
     for (var idx = subIndicatorCount - 1; idx >= 0; --idx) {
       var type = showSubIndicators[idx];
       int orderIdx = subIndicatorCount - idx;
       double subTop = size.height - orderIdx * (indicatorH + indicatorSpacing) + indicatorSpacing;
+
+      double subHighestValue = type == IndicatorType.vol ? maxVolume : subHighest[type] ?? 0.0;
+      double subLowestValue = subLowest[type] ?? 0.0;
+
+      // draw ruler text
+      drawSubIndicatorRulerText(canvas, indicatorH, size.width, subTop, subHighestValue, subLowestValue, size);
+
       if (type.isLine) {
         IndicatorLinePainter.paint(canvas, size, indicatorH - KLineController.shared.indicatorInfoHeight, type, subIndicatorData[type],
             KLineController.shared.currentPeriods(type), beginIdx, slideOffset, subHighest[type] ?? 0.0, subLowest[type] ?? 0.0,
@@ -261,9 +268,16 @@ class KLinePainter extends CustomPainter {
     }
   }
 
-  void drawYAxisScaleText(Canvas canvas, Size canvasSize, double highest, double lowest) {}
+  void drawSubIndicatorRulerText(Canvas canvas, double height, double width, double top, double highest, double lowest, Size canvasSize) {
+    // draw highest text
+    drawText(canvas, '${highest.toStringAsFixed(2)}', Offset(width - 56, top + KLineController.shared.indicatorInfoHeight), canvasSize, width: 56);
 
-  void drawText(Canvas canvas, String text, Offset offset, Size canvasSize) {
+    // draw lowest text
+    drawText(canvas, '${lowest.toStringAsPrecision(2)}', Offset(width - 56, top + height - 14.0), canvasSize, width: 56);
+  }
+
+  /// draw Text in canvas
+  void drawText(Canvas canvas, String text, Offset offset, Size canvasSize, {double? width}) {
     final painter = TextPainter(
         textDirection: TextDirection.ltr,
         maxLines: 1,
@@ -276,7 +290,8 @@ class KLinePainter extends CustomPainter {
             )))
       ..layout();
 
-    painter.paint(canvas, offset);
+    double textWidth = painter.width;
+    painter.paint(canvas, Offset(width != null ? (offset.dx + width! - textWidth) : offset.dx, offset.dy));
   }
 
   void drawHighestLowestText(Canvas canvas, String text, Offset offset, Size canvasSize) {
@@ -305,7 +320,7 @@ class KLinePainter extends CustomPainter {
     double priceOffset = highestPrice - lowestPrice;
     var ctr = KLineController.shared;
     double scaleTop = ctr.mainIndicatorInfoMargin + ctr.indicatorInfoHeight + ctr.klineMargin.top;
-    double scaleHeight = height - 12.0; // mainHeight - fontHeight
+    double scaleHeight = height; // mainHeight - fontHeight
     // draw main ruler
     for (var i = 0; i < 5; ++i) {
       // draw vertical line
@@ -313,11 +328,8 @@ class KLinePainter extends CustomPainter {
       // draw horizontal line
       if (i > 0) canvas.drawLine(Offset(0, height * i / 4 + top), Offset(width, height * i / 4 + top), _rulerPaint);
       // draw rule text
-      drawText(canvas, '${highestPrice - priceOffset * i / 4}', Offset(width - 56, scaleHeight * i / 4 + scaleTop), canvasSize);
+      drawText(canvas, '${(highestPrice - priceOffset * i / 4).toStringAsFixed(2)}', Offset(width - 56, scaleHeight * i / 4 + scaleTop - 12), canvasSize, width: 56);
     }
-
-    // draw sub indicator's ruler
-    
   }
 
   @override

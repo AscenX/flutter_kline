@@ -16,7 +16,7 @@ class KLineView extends StatefulWidget {
 
 class _KLineViewState extends State<KLineView> {
 
-  late final ScrollController _klineSc;
+  late final ScrollController _klineScrollCtr;
 
   var _hasInitScrollController = false;
   var _beginIdx = -1.0;
@@ -28,10 +28,10 @@ class _KLineViewState extends State<KLineView> {
 
   void _initScrollController(double initOffset) {
     if (_hasInitScrollController) return;
-    _klineSc = ScrollController(initialScrollOffset: initOffset);
+    _klineScrollCtr = ScrollController(initialScrollOffset: initOffset);
 
-    _klineSc.addListener(() {
-      double offsetX = _klineSc.offset;
+    _klineScrollCtr.addListener(() {
+      double offsetX = _klineScrollCtr.offset;
       _klineDidScroll(offsetX);
     });
     _hasInitScrollController = true;
@@ -70,10 +70,8 @@ class _KLineViewState extends State<KLineView> {
     } else {
       _currentScale = scale;
     }
-
-    int count = 30;
-
-    count = KLineController.shared.candleCount + ((1 - _currentScale) * 10).round();
+    
+    int count = KLineController.shared.candleCount + ((1 - _currentScale) * 10).round();
 
     int maxCount = _dataLength > KLineController.shared.maxCandleCount ? KLineController.shared.maxCandleCount : _dataLength;
     count = count > maxCount ? maxCount : count;
@@ -110,10 +108,10 @@ class _KLineViewState extends State<KLineView> {
                   int candleCount = KLineController.shared.candleCount;
                   double candleW = KLineController.candleWidth(containerW);
                   double spacing = KLineController.shared.spacing;
-                  // 计算滑动size
+                  // scroll size
                   double contentSizeW = dataLength * (candleW + spacing);
                   if (_beginIdx < 0) { // init
-                    // 展示的起始index
+                    // show begin index
                     _beginIdx = (dataLength - candleCount).toDouble();
                     if (_beginIdx < 0) _beginIdx = 0;
                     // double beginOffset = _beginIdx / dataLength * contentSizeW;
@@ -131,7 +129,7 @@ class _KLineViewState extends State<KLineView> {
                               _klineDidZoom(details);
                             },
                             child: SingleChildScrollView(
-                              controller: _klineSc,
+                              controller: _klineScrollCtr,
                               scrollDirection: Axis.horizontal,
                               child: SizedBox(
                                 width: contentSizeW,
@@ -158,7 +156,7 @@ class _KLineViewState extends State<KLineView> {
 
   @override
   void dispose() {
-    _klineSc.dispose();
+    _klineScrollCtr.dispose();
     super.dispose();
   }
 }

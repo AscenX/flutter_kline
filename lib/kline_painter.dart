@@ -13,8 +13,6 @@ class KLinePainter extends CustomPainter {
 
   KLinePainter(this.klineData, this.beginIdx);
 
-  // late double highest;
-  // late double lowest;
 
   final _riseRectPaint = Paint()
     ..style = PaintingStyle.fill
@@ -241,9 +239,6 @@ class KLinePainter extends CustomPainter {
     // draw sub indicator
     double indicatorH = KLineController.shared.subIndicatorHeight;
 
-    if (KLineController.shared.showSubIndicators.contains(IndicatorType.vol)) {
-      VolPainter(klineData, beginIdx).paint(canvas, size, maxVolume, slideOffset);
-    }
     // if (KLineConfig.shared.showSubIndicators.contains(IndicatorType.macd)) {
     //   MACDPainter(klineData, beginIdx).paint(canvas, size, maxVolume);
     // }
@@ -260,6 +255,10 @@ class KLinePainter extends CustomPainter {
       // draw ruler text
       drawSubIndicatorRulerText(canvas, indicatorH, size.width, subTop, subHighestValue, subLowestValue, size);
 
+      if (type == IndicatorType.vol) {
+        VolPainter(klineData, beginIdx).paint(canvas, size, maxVolume, slideOffset);
+      }
+
       if (type.isLine) {
         IndicatorLinePainter.paint(canvas, size, indicatorH - KLineController.shared.indicatorInfoHeight, type, subIndicatorData[type],
             KLineController.shared.currentPeriods(type), beginIdx, slideOffset, subHighest[type] ?? 0.0, subLowest[type] ?? 0.0,
@@ -273,7 +272,7 @@ class KLinePainter extends CustomPainter {
     drawText(canvas, '${highest.toStringAsFixed(2)}', Offset(width - 56, top + KLineController.shared.indicatorInfoHeight), canvasSize, width: 56);
 
     // draw lowest text
-    drawText(canvas, '${lowest.toStringAsPrecision(2)}', Offset(width - 56, top + height - 14.0), canvasSize, width: 56);
+    drawText(canvas, '${lowest.toStringAsFixed(2)}', Offset(width - 56, top + height - 14.0), canvasSize, width: 56);
   }
 
   /// draw Text in canvas

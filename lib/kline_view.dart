@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:kline/kline_controller.dart';
 import 'package:kline/kline_data.dart';
 import 'package:kline/kline_info_widget.dart';
+import 'package:kline/kline_long_press_widget.dart';
 import 'package:kline/kline_painter.dart';
 
 class KLineView extends StatefulWidget {
@@ -39,7 +40,7 @@ class _KLineViewState extends State<KLineView> {
   }
 
   void _klineDidScroll(double offsetX) {
-    double candleW = KLineController.shared.currentCandleW;
+    double candleW = KLineController.shared.itemWidth;
     double spacing = KLineController.shared.spacing;
     double nowIdx = offsetX / (candleW + spacing);
     // print("_klineDidScroll--------- nowIdx:$nowIdx, data length:$_dataLength");
@@ -85,8 +86,8 @@ class _KLineViewState extends State<KLineView> {
     });
   }
 
-  void _klineLongPress(double offsetX) {
-    KLineController.shared.longPressController.add(offsetX);
+  void _klineLongPress(Offset offset) {
+    KLineController.shared.longPressOffset.update(offset);
   }
 
   @override
@@ -120,28 +121,15 @@ class _KLineViewState extends State<KLineView> {
             double beginOffset = dataLength < candleCount ? 0.0 : contentSizeW - containerW;
             _initScrollController(beginOffset);
           }
-
-          // double klineHeight = containerH - KLineConfig.shared.indicatorHeight;
-
           return CustomPaint(
               painter: KLinePainter(widget.data, _beginIdx),
               size: Size(containerW, containerH),
               child: GestureDetector(
-                onScaleUpdate: (details) {
-                  _klineDidZoom(details);
-                },
-                onLongPressStart: (LongPressStartDetails details) {
-                  // debugPrint('00000000 onLongPressStart:${details.localPosition.dx}');
-                  _klineLongPress(details.localPosition.dx);
-                },
-                onLongPressMoveUpdate: (LongPressMoveUpdateDetails details) {
-                  // debugPrint('11111111 onLongPressMoveUpdate:${details.localPosition.dx}');
-                  _klineLongPress(details.localPosition.dx);
-                },
-                onLongPressEnd: (LongPressEndDetails details) {
-                  // debugPrint('22222222 onLongPressEnd details:${details.localPosition.dx}');
-                  _klineLongPress(-1);
-                },
+                onScaleUpdate: (details) => _klineDidZoom(details),
+                onLongPressStart: (details) => _klineLongPress(details.localPosition),
+                onLongPressMoveUpdate: (details) => _klineLongPress(details.localPosition),
+                onLongPressEnd: (details) => _klineLongPress(details.localPosition),
+                onTap: () => _klineLongPress(Offset.zero),
                 child: Stack(
                   children: [
                     Positioned.fill(child: SingleChildScrollView(
@@ -154,8 +142,13 @@ class _KLineViewState extends State<KLineView> {
                     )),
                     Align(
                       alignment: Alignment.topLeft,
-                      child: KlineInfoWidget(widget.data, _beginIdx),
-                    )
+                      child: RepaintBoundary(
+                        child: KlineInfoWidget(widget.data, _beginIdx),
+                      ),
+                    ),
+                    Positioned.fill(child: RepaintBoundary(
+                      child: KlineLongPressWidget(widget.data, _beginIdx),
+                    ))
                   ],
                 ),
               )

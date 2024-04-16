@@ -5,7 +5,6 @@ import 'package:kline/kline_controller.dart';
 import 'package:kline/indicators/indicator_line_painter.dart';
 import 'package:kline/indicators/vol_painter.dart';
 import 'package:kline/kline_data.dart';
-import 'package:kline/main.dart';
 
 class KLinePainter extends CustomPainter {
   final List<KLineData> klineData;
@@ -49,6 +48,8 @@ class KLinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (klineData.isEmpty) return;
+
+    debugPrint('debug: kline painter repaint');
 
     List showSubIndicators = KLineController.shared.showSubIndicators;
     int subIndicatorCount = showSubIndicators.length;

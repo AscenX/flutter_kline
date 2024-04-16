@@ -16,8 +16,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-        title: "flutter_kline demo app", home: MyHomePage(title: 'flutter_kline demo'));
+    return const MaterialApp(title: "flutter kline demo app", home: MyHomePage(title: 'flutter kline demo'));
   }
 }
 
@@ -31,17 +30,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<String> mainIndicators =
-      KLineController.shared.showMainIndicators.map((e) => e.name).toList();
-  List<String> subIndicators =
-      KLineController.shared.showSubIndicators.map((e) => e.name).toList();
+  List<String> mainIndicators = KLineController.shared.showMainIndicators.map((e) => e.name).toList();
+  List<String> subIndicators = KLineController.shared.showSubIndicators.map((e) => e.name).toList();
 
-  Widget buildIndicator(
-      String name, bool isMain, void Function(String, bool) click) {
-    Color c =
-        (isMain ? mainIndicators.contains(name) : subIndicators.contains(name))
-            ? Colors.blue
-            : Colors.grey;
+  Widget buildIndicator(String name, bool isMain, void Function(String, bool) click) {
+    Color c = (isMain ? mainIndicators.contains(name) : subIndicators.contains(name)) ? Colors.blue : Colors.grey;
     return InkWell(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -60,8 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
         mainIndicators.add(name);
       }
 
-      KLineController.shared.showMainIndicators =
-          mainIndicators.map((e) => IndicatorType.fromName(e)).toList();
+      KLineController.shared.showMainIndicators = mainIndicators.map((e) => IndicatorType.fromName(e)).toList();
     } else {
       if (subIndicators.contains(name)) {
         subIndicators.remove(name);
@@ -71,8 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
       } else {
         subIndicators.add(name);
       }
-      KLineController.shared.showSubIndicators =
-          subIndicators.map((e) => IndicatorType.fromName(e)).toList();
+      KLineController.shared.showSubIndicators = subIndicators.map((e) => IndicatorType.fromName(e)).toList();
     }
     setState(() {});
   }
@@ -102,9 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(children: [
                   const Text("Main Indicator"),
-                  ...IndicatorType.values
-                      .where((element) => element.isMain)
-                      .map((e) {
+                  ...IndicatorType.values.where((element) => element.isMain).map((e) {
                     return buildIndicator(e.name, e.isMain, clickIndicator);
                   })
                 ])),
@@ -113,27 +102,21 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(children: [
                   const Text("Sub Indicator"),
-                  ...IndicatorType.values
-                      .where((element) =>
-                          !element.isMain && element != IndicatorType.maVol)
-                      .map((e) {
+                  ...IndicatorType.values.where((element) => !element.isMain && element != IndicatorType.maVol).map((e) {
                     return buildIndicator(e.name, e.isMain, clickIndicator);
                   })
                 ])),
             Container(
                 width: MediaQuery.of(context).size.width,
                 height: 400,
-                decoration: const BoxDecoration(
-                    border: Border.symmetric(
-                        horizontal: BorderSide(color: Colors.black))),
+                decoration: const BoxDecoration(border: Border.symmetric(horizontal: BorderSide(color: Colors.black))),
                 child: FutureBuilder(
                     future: _loadJson(),
                     initialData: const <KLineData>[],
                     builder: (ctx, snapShot) {
                       final klineData = snapShot.data as List<KLineData>;
                       return KLineView(data: klineData);
-                    })
-            )
+                    }))
           ],
         )) // This trailing comma makes auto-formatting nicer for build methods.
         );

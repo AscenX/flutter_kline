@@ -32,6 +32,14 @@ enum IndicatorType {
   }
 }
 
+class LongPressOffset extends ValueNotifier<Offset> {
+
+  LongPressOffset(Offset value) : super(value);
+
+  update(Offset offset) {
+    value = offset;
+  }
+}
 
 class KLineController {
 
@@ -47,8 +55,8 @@ class KLineController {
   int candleCount = 30;
   /// spacing between candle
   double spacing = 2.0;
-  /// current candle width
-  double currentCandleW = 0.0;
+  /// current item width (candle width)
+  double itemWidth = 0.0;
   /// kline view margin
   var klineMargin = const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0);
   /// min candle count
@@ -59,8 +67,6 @@ class KLineController {
   double mainIndicatorInfoMargin = 5.0;
   double subIndicatorInfoMargin = 5.0;
 
-  final StreamController longPressController = StreamController.broadcast();
-
   // info
   /// set null to fix text's width
   double? infoWidgetMaxWidth = 130;
@@ -68,6 +74,8 @@ class KLineController {
   EdgeInsets infoWidgetPadding = const EdgeInsets.all(4);
   double infoWidgetBorderRadius = 4;
   Border infoWidgetBorder = Border.all(color: Colors.blueGrey.withOpacity(0.5), width: 0.5);
+
+  var longPressOffset = LongPressOffset(Offset.zero);
 
   // /// main indicator information top margin
   // double mainIndicatorInfoTopMargin = 5.0;
@@ -120,7 +128,7 @@ class KLineController {
     int candleCount = KLineController.shared.candleCount;
     // 蜡烛宽度 = 总宽度 / 蜡烛数 - 蜡烛之间的间距，间距数量和蜡烛数量相等
     double candleW = width / candleCount - spacing;
-    KLineController.shared.currentCandleW = candleW;
+    KLineController.shared.itemWidth = candleW;
     return candleW;
   }
 

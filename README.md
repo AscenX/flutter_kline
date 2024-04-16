@@ -20,6 +20,7 @@
 - Time line Chart
 - Publish to pub.dev
 
+- Improve scale gesture
 - MACD sub indicator
 - RSI sub indicator
 - SAR  indicator

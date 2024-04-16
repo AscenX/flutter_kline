@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 
@@ -42,7 +43,6 @@ class KLineController {
       ..color = color);
   }
 
-
   /// current display candle count
   int candleCount = 30;
   /// spacing between candle
@@ -58,6 +58,16 @@ class KLineController {
 
   double mainIndicatorInfoMargin = 5.0;
   double subIndicatorInfoMargin = 5.0;
+
+  final StreamController longPressController = StreamController.broadcast();
+
+  // info
+  /// set null to fix text's width
+  double? infoWidgetMaxWidth = 130;
+  EdgeInsets infoWidgetMargin = const EdgeInsets.only(left: 8, top: 10);
+  EdgeInsets infoWidgetPadding = const EdgeInsets.all(4);
+  double infoWidgetBorderRadius = 4;
+  Border infoWidgetBorder = Border.all(color: Colors.blueGrey.withOpacity(0.5), width: 0.5);
 
   // /// main indicator information top margin
   // double mainIndicatorInfoTopMargin = 5.0;

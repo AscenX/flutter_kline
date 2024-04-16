@@ -1,14 +1,16 @@
 import 'dart:async';
-import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:kline/kline_controller.dart';
 import 'package:kline/kline_data.dart';
+import 'package:kline/kline_info_widget.dart';
 import 'package:kline/kline_painter.dart';
-import 'package:flutter/services.dart';
-
 
 class KLineView extends StatefulWidget {
-  const KLineView({super.key});
+
+  final List<KLineData> data;
+
+  const KLineView({super.key, required this.data});
 
   @override
   State<StatefulWidget> createState() => _KLineViewState();
@@ -20,7 +22,6 @@ class _KLineViewState extends State<KLineView> {
 
   var _hasInitScrollController = false;
   var _beginIdx = -1.0;
-  var _lastBeginIdx = -1.0;
 
   var _currentScale = 1.0;
 
@@ -84,74 +85,83 @@ class _KLineViewState extends State<KLineView> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: KLineController.shared.klineMargin,
-      // color: KLineConfig.shared.isDebug ? Colors.deepPurple.withAlpha(80) : null,
-      child: FutureBuilder(
-            future: _loadJson(),
-            initialData: const <KLineData>[],
-            builder: (ctx, snapShot) {
-              final klineData = snapShot.data as List<KLineData>;
-              int dataLength = klineData.length;
-              _dataLength = dataLength;
-              if (dataLength == 0) {
-                return const Center(child: Text('Loading...'),);
-              }
-
-              return LayoutBuilder(
-                builder: (ctx, constraints) {
-                  double containerW = constraints.biggest.width;
-                  double containerH = constraints.biggest.height;
-
-                  int candleCount = KLineController.shared.candleCount;
-                  double candleW = KLineController.candleWidth(containerW);
-                  double spacing = KLineController.shared.spacing;
-                  // scroll size
-                  double contentSizeW = dataLength * (candleW + spacing);
-                  if (_beginIdx < 0) { // init
-                    // show begin index
-                    _beginIdx = (dataLength - candleCount).toDouble();
-                    if (_beginIdx < 0) _beginIdx = 0;
-                    // double beginOffset = _beginIdx / dataLength * contentSizeW;
-                    double beginOffset = dataLength < candleCount ? 0.0 : contentSizeW - containerW;
-                    _initScrollController(beginOffset);
-                  }
-
-                  // double klineHeight = containerH - KLineConfig.shared.indicatorHeight;
-
-                  return CustomPaint(
-                          painter: KLinePainter(klineData, _beginIdx),
-                          size: Size(containerW, containerH),
-                          child: GestureDetector(
-                            onScaleUpdate: (details) {
-                              _klineDidZoom(details);
-                            },
-                            child: SingleChildScrollView(
-                              controller: _klineScrollCtr,
-                              scrollDirection: Axis.horizontal,
-                              child: SizedBox(
-                                width: contentSizeW,
-                                height: containerH,
-                              ),
-                            ),
-                          )
-                      );
-                });
-            })
-    );
+  void _klineLongPress(double offsetX) {
+    KLineController.shared.longPressController.add(offsetX);
   }
 
-  Future<List<KLineData>> _loadJson() async {
-    final jsonStr = await rootBundle.loadString('lib/kline.json');
-    List jsonList = json.decode(jsonStr);
-    List<KLineData> dataList = [];
-    for (var data in jsonList) {
-      var klineData = KLineData.fromBinanceData(data);
-      dataList.add(klineData);
+  @override
+  Widget build(BuildContext context) {
+
+    int dataLength = widget.data.length;
+    _dataLength = dataLength;
+    if (dataLength == 0) {
+      return const Center(child: CircularProgressIndicator(
+        strokeWidth: 2.0,
+        color: Colors.blueGrey,
+      ));
     }
-    return dataList;
+    return Container(
+      margin: KLineController.shared.klineMargin,
+      child: LayoutBuilder(
+        builder: (ctx, constraints) {
+          double containerW = constraints.biggest.width;
+          double containerH = constraints.biggest.height;
+
+          int candleCount = KLineController.shared.candleCount;
+          double candleW = KLineController.candleWidth(containerW);
+          double spacing = KLineController.shared.spacing;
+          // scroll size
+          double contentSizeW = dataLength * (candleW + spacing);
+          if (_beginIdx < 0) { // init
+            // show begin index
+            _beginIdx = (dataLength - candleCount).toDouble();
+            if (_beginIdx < 0) _beginIdx = 0;
+            // double beginOffset = _beginIdx / dataLength * contentSizeW;
+            double beginOffset = dataLength < candleCount ? 0.0 : contentSizeW - containerW;
+            _initScrollController(beginOffset);
+          }
+
+          // double klineHeight = containerH - KLineConfig.shared.indicatorHeight;
+
+          return CustomPaint(
+              painter: KLinePainter(widget.data, _beginIdx),
+              size: Size(containerW, containerH),
+              child: GestureDetector(
+                onScaleUpdate: (details) {
+                  _klineDidZoom(details);
+                },
+                onLongPressStart: (LongPressStartDetails details) {
+                  // debugPrint('00000000 onLongPressStart:${details.localPosition.dx}');
+                  _klineLongPress(details.localPosition.dx);
+                },
+                onLongPressMoveUpdate: (LongPressMoveUpdateDetails details) {
+                  // debugPrint('11111111 onLongPressMoveUpdate:${details.localPosition.dx}');
+                  _klineLongPress(details.localPosition.dx);
+                },
+                onLongPressEnd: (LongPressEndDetails details) {
+                  // debugPrint('22222222 onLongPressEnd details:${details.localPosition.dx}');
+                  _klineLongPress(-1);
+                },
+                child: Stack(
+                  children: [
+                    Positioned.fill(child: SingleChildScrollView(
+                      controller: _klineScrollCtr,
+                      scrollDirection: Axis.horizontal,
+                      child: SizedBox(
+                        width: contentSizeW,
+                        height: containerH,
+                      ),
+                    )),
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: KlineInfoWidget(widget.data, _beginIdx),
+                    )
+                  ],
+                ),
+              )
+          );
+        })
+    );
   }
 
   @override

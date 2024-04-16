@@ -1,6 +1,10 @@
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:kline/kline_controller.dart';
+import 'package:kline/kline_data.dart';
 import 'package:kline/kline_view.dart';
 
 void main() {
@@ -73,6 +77,17 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {});
   }
 
+  Future<List<KLineData>> _loadJson() async {
+    final jsonStr = await rootBundle.loadString('lib/kline.json');
+    List jsonList = json.decode(jsonStr);
+    List<KLineData> dataList = [];
+    for (var data in jsonList) {
+      var klineData = KLineData.fromBinanceData(data);
+      dataList.add(klineData);
+    }
+    return dataList;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,7 +126,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 decoration: const BoxDecoration(
                     border: Border.symmetric(
                         horizontal: BorderSide(color: Colors.black))),
-                child: const KLineView())
+                child: FutureBuilder(
+                    future: _loadJson(),
+                    initialData: const <KLineData>[],
+                    builder: (ctx, snapShot) {
+                      final klineData = snapShot.data as List<KLineData>;
+                      return KLineView(data: klineData);
+                    })
+            )
           ],
         )) // This trailing comma makes auto-formatting nicer for build methods.
         );

@@ -28,8 +28,8 @@ class MACDPainter  {
     double width = size.width;
 
     double spacing = KLineController.shared.spacing;
-    double candleW = KLineController.candleWidth(width);
-    int candleCount = KLineController.shared.candleCount;
+    double itemW = KLineController.getItemWidth(width);
+    int itemCount = KLineController.shared.itemCount;
 
     // 最高最低差
     double valueOffset = max;
@@ -44,7 +44,7 @@ class MACDPainter  {
     //   originY = size.height - KLineConfig.shared.subIndicatorHeight - KLineConfig.shared.indicatorSpacing;
     // }
 
-    for (var i = beginIdx;i < beginIdx + candleCount;++i) {
+    for (var i = beginIdx;i < beginIdx + itemCount;++i) {
       KLineData data = klineData[i];
 
       double open = data.open;
@@ -54,9 +54,9 @@ class MACDPainter  {
       double volumeH = height * volume / valueOffset;
 
       canvas.drawRect(
-          Rect.fromLTWH(rectLeft, originY - volumeH, candleW, volumeH), close > open ? riseRectPaint : fallRectPaint);
+          Rect.fromLTWH(rectLeft, originY - volumeH, itemW, volumeH), close > open ? riseRectPaint : fallRectPaint);
 
-      rectLeft += (candleW + spacing);
+      rectLeft += (itemW + spacing);
     }
 
   }

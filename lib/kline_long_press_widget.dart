@@ -4,24 +4,34 @@ import 'package:flutter/material.dart';
 import 'package:kline/kline_controller.dart';
 import 'package:kline/kline_data.dart';
 
-
 class KlineLongPressWidget extends StatelessWidget {
-
   final List<KLineData> klineData;
   final double beginIdx;
 
   const KlineLongPressWidget(this.klineData, this.beginIdx, {super.key});
 
+  Offset _convertToItemOffset(Offset offset) {
+    double itemW = KLineController.shared.itemWidth;
+    double spacing = KLineController.shared.spacing;
+    double itemSpacingWidth = itemW + spacing;
+    int index = (offset.dx / itemSpacingWidth).round();
+    double indexOffset = beginIdx - beginIdx.round();
+    double slideOffset = -indexOffset * itemSpacingWidth;
+    double itemOffsetX = index * itemSpacingWidth + itemW * 0.5 + slideOffset;
+    return Offset(itemOffsetX, offset.dy);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: ValueListenableBuilder<Offset>(
+    return ValueListenableBuilder<Offset>(
         valueListenable: KLineController.shared.longPressOffset,
         builder: (ctx, offset, child) {
+          if (offset == Offset.zero) return const SizedBox.shrink();
+          Offset itemOffset = _convertToItemOffset(offset);
           return CustomPaint(
-        foregroundPainter: KLineLongPressPainter(klineData, beginIdx, offset),
-      );})
-    );
+            foregroundPainter: KLineLongPressPainter(klineData, beginIdx, itemOffset),
+          );
+        });
   }
 }
 
@@ -34,18 +44,10 @@ class KLineLongPressPainter extends CustomPainter {
   var longPressOffset = Offset.zero;
 
   KLineLongPressPainter(this.klineData, this.beginIdx, this.longPressOffset);
-  // {
-  //   longPressSub = KLineController.shared.longPressController.stream.listen((event) {
-  //     if (event is Offset) {
-  //       longPressOffset = event;
-  //     }
-  //   });
-  // }
 
   final _linePaint = Paint()
     ..style = PaintingStyle.stroke
-    ..color = Colors.blueGrey.withOpacity(0.2);
-
+    ..color = Colors.blueGrey.withOpacity(0.8);
 
   // draw kline
 
@@ -61,8 +63,6 @@ class KLineLongPressPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant KLineLongPressPainter oldDelegate) {
-    // print('1111111 old delete:${oldDelegate.longPressOffset}');
-    return longPressOffset.dx.round() != oldDelegate.longPressOffset.dx.round() ||
-        longPressOffset.dy != oldDelegate.longPressOffset.dy;
+    return longPressOffset.dx.round() != oldDelegate.longPressOffset.dx.round() || longPressOffset.dy != oldDelegate.longPressOffset.dy;
   }
 }

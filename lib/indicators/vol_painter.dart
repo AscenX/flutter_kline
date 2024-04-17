@@ -30,8 +30,8 @@ class VolPainter  {
     double width = size.width;
 
     double spacing = KLineController.shared.spacing;
-    double candleW = KLineController.candleWidth(width);
-    int candleCount = KLineController.shared.candleCount;
+    double itemW = KLineController.getItemWidth(width);
+    int itemCount = KLineController.shared.itemCount;
 
     double min = 0.0;
     // calculated MA volume
@@ -43,7 +43,7 @@ class VolPainter  {
     if (maMax > max) max = maMax;
 
     double valueOffset = max;
-    double rectLeft = spacing;
+    double rectLeft = 0;
 
     List showSubIndicators = KLineController.shared.showSubIndicators;
     int subIndicatorCount = showSubIndicators.length;
@@ -55,7 +55,7 @@ class VolPainter  {
     // originBtm -= KLineConfig.shared.indicatorInfoHeight;
 
 
-    for (var i = beginIdx;i < beginIdx + candleCount;++i) {
+    for (var i = beginIdx;i < beginIdx + itemCount;++i) {
       KLineData data = klineData[i.round()];
 
       double open = data.open;
@@ -65,9 +65,9 @@ class VolPainter  {
       double volumeH = (height - KLineController.shared.indicatorInfoHeight) * volume / valueOffset;
 
       canvas.drawRect(
-            Rect.fromLTWH(rectLeft + slideOffset, originBtm - volumeH, candleW, volumeH), close > open ? riseRectPaint : fallRectPaint);
+            Rect.fromLTWH(rectLeft + slideOffset, originBtm - volumeH, itemW, volumeH), close > open ? riseRectPaint : fallRectPaint);
 
-      rectLeft += (candleW + spacing);
+      rectLeft += (itemW + spacing);
     }
 
     // debug

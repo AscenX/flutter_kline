@@ -12,11 +12,11 @@ class IndicatorLinePainter {
     double width = size.width;
 
     double spacing = KLineController.shared.spacing;
-    double candleW = KLineController.candleWidth(width);
-    int candleCount = KLineController.shared.candleCount;
+    double itemW = KLineController.getItemWidth(width);
+    int itemCount = KLineController.shared.itemCount;
 
     double valueOffset = maxValue - minValue;
-    double indicatorX = spacing + candleW * 0.5;
+    double indicatorX = spacing + itemW * 0.5;
 
     List<String> maInfoList = [];
     for (int idx = 0; idx < periods.length; ++idx) {
@@ -40,7 +40,7 @@ class IndicatorLinePainter {
       double lastX = 0.0;
       double lastValue = 0.0;
 
-      for (var i = beginIdx; i < beginIdx + candleCount; ++i) {
+      for (var i = beginIdx; i < beginIdx + itemCount; ++i) {
         if (dataList[idx].isEmpty) {
           debugPrint('debug:dataList[idx].isEmpty');
           return;
@@ -64,7 +64,7 @@ class IndicatorLinePainter {
         if (type.isMain) indicatorY += KLineController.shared.mainIndicatorInfoMargin;
         indicatorY += KLineController.shared.indicatorInfoHeight;
 
-        indicatorX = (i - beginIdx) * (candleW + spacing) + candleW * 0.5 + slideOffset;
+        indicatorX = (i - beginIdx) * (itemW + spacing) + itemW * 0.5 + slideOffset;
 
         if (lastX == 0.0 && lastY == 0.0) {
           lastX = indicatorX;

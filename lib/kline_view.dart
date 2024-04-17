@@ -40,15 +40,15 @@ class _KLineViewState extends State<KLineView> {
   }
 
   void _klineDidScroll(double offsetX) {
-    double candleW = KLineController.shared.itemWidth;
+    KLineController.shared.longPressOffset.update(Offset.zero);
+    double itemW = KLineController.shared.itemWidth;
     double spacing = KLineController.shared.spacing;
-    double nowIdx = offsetX / (candleW + spacing);
-    // print("_klineDidScroll--------- nowIdx:$nowIdx, data length:$_dataLength");
+    double nowIdx = offsetX / (itemW + spacing);
     if (nowIdx < 0) {
       _beginIdx = 0.0;
     } else {
-        if (nowIdx + KLineController.shared.candleCount > _dataLength) {
-          // print("00000000 return:$nowIdx, count:${KLineConfig.shared.candleCount}, dataLength: $_dataLength");
+        if (nowIdx + KLineController.shared.itemCount > _dataLength) {
+          // print("00000000 return:$nowIdx, count:${KLineConfig.shared.itemCount}, dataLength: $_dataLength");
           return;
         }
         _beginIdx = nowIdx;
@@ -73,15 +73,15 @@ class _KLineViewState extends State<KLineView> {
       _currentScale = scale;
     }
     
-    int count = KLineController.shared.candleCount + ((1 - _currentScale) * 10).round();
+    int count = KLineController.shared.itemCount + ((1 - _currentScale) * 10).round();
 
-    int maxCount = _dataLength > KLineController.shared.maxCandleCount ? KLineController.shared.maxCandleCount : _dataLength;
+    int maxCount = _dataLength > KLineController.shared.maxCount ? KLineController.shared.maxCount : _dataLength;
     count = count > maxCount ? maxCount : count;
-    count = count < KLineController.shared.minCandleCount ? KLineController.shared.minCandleCount : count;
+    count = count < KLineController.shared.minCount ? KLineController.shared.minCount : count;
     if (count + _beginIdx >= _dataLength) {
       _beginIdx = (_dataLength - count).toDouble();
     }
-    KLineController.shared.candleCount = count;
+    KLineController.shared.itemCount = count;
     setState(() {
     });
   }
@@ -108,17 +108,17 @@ class _KLineViewState extends State<KLineView> {
           double containerW = constraints.biggest.width;
           double containerH = constraints.biggest.height;
 
-          int candleCount = KLineController.shared.candleCount;
-          double candleW = KLineController.candleWidth(containerW);
+          int itemCount = KLineController.shared.itemCount;
+          double itemW = KLineController.getItemWidth(containerW);
           double spacing = KLineController.shared.spacing;
           // scroll size
-          double contentSizeW = dataLength * (candleW + spacing);
+          double contentSizeW = dataLength * (itemW + spacing);
           if (_beginIdx < 0) { // init
             // show begin index
-            _beginIdx = (dataLength - candleCount).toDouble();
+            _beginIdx = (dataLength - itemCount).toDouble();
             if (_beginIdx < 0) _beginIdx = 0;
             // double beginOffset = _beginIdx / dataLength * contentSizeW;
-            double beginOffset = dataLength < candleCount ? 0.0 : contentSizeW - containerW;
+            double beginOffset = dataLength < itemCount ? 0.0 : contentSizeW - containerW;
             _initScrollController(beginOffset);
           }
           return CustomPaint(

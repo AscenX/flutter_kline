@@ -51,8 +51,8 @@ class KLineController {
       ..color = color);
   }
 
-  /// current display candle count
-  int candleCount = 30;
+  /// current display item count (candle count)
+  int itemCount = 30;
   /// spacing between candle
   double spacing = 2.0;
   /// current item width (candle width)
@@ -60,9 +60,9 @@ class KLineController {
   /// kline view margin
   var klineMargin = const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0);
   /// min candle count
-  int minCandleCount = 7;
+  int minCount = 7;
   /// max candle count
-  int maxCandleCount = 39;
+  int maxCount = 39;
 
   double mainIndicatorInfoMargin = 5.0;
   double subIndicatorInfoMargin = 5.0;
@@ -123,13 +123,13 @@ class KLineController {
 
   List<Color> indicatorColors = [Colors.orange, Colors.purple, Colors.blue];
 
-  static double candleWidth(double width) {
+  static double getItemWidth(double width) {
     double spacing = KLineController.shared.spacing;
-    int candleCount = KLineController.shared.candleCount;
+    int itemCount = KLineController.shared.itemCount;
     // 蜡烛宽度 = 总宽度 / 蜡烛数 - 蜡烛之间的间距，间距数量和蜡烛数量相等
-    double candleW = width / candleCount - spacing;
-    KLineController.shared.itemWidth = candleW;
-    return candleW;
+    double itemW = width / itemCount - spacing;
+    KLineController.shared.itemWidth = itemW;
+    return itemW;
   }
 
   // singleton

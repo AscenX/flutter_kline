@@ -55,8 +55,8 @@ class KLinePainter extends CustomPainter {
     int subIndicatorCount = showSubIndicators.length;
 
     double spacing = KLineController.shared.spacing;
-    double candleW = KLineController.candleWidth(size.width);
-    int candleCount = KLineController.shared.candleCount;
+    double itemW = KLineController.getItemWidth(size.width);
+    int itemCount = KLineController.shared.itemCount;
 
     double mainTopMargin = KLineController.shared.klineMargin.top;
     double mainInfoMargin = KLineController.shared.mainIndicatorInfoMargin;
@@ -90,7 +90,7 @@ class KLinePainter extends CustomPainter {
 
     double highestIdx = beginIdx, lowestIdx = beginIdx;
 
-    for (var i = beginIdx; i < beginIdx + candleCount; ++i) {
+    for (var i = beginIdx; i < beginIdx + itemCount; ++i) {
       if (i >= klineData.length) return;
       final data = klineData[i.round()];
       double high = data.high;
@@ -178,8 +178,8 @@ class KLinePainter extends CustomPainter {
     double highestX = 0.0, highestY = 0.0, lowestX = 0.0, lowestY = 0.0;
 
     double indexOffset = beginIdx - beginIdx.round();
-    double slideOffset = -indexOffset * (candleW + spacing);
-    for (var i = beginIdx; i < beginIdx + candleCount; ++i) {
+    double slideOffset = -indexOffset * (itemW + spacing);
+    for (var i = beginIdx; i < beginIdx + itemCount; ++i) {
       KLineData data = klineData[i.round()];
 
       double open = data.open;
@@ -187,7 +187,7 @@ class KLinePainter extends CustomPainter {
       double low = data.low;
       double close = data.close;
 
-      double lineX = rectLeft + candleW * 0.5 + slideOffset;
+      double lineX = rectLeft + itemW * 0.5 + slideOffset;
       double lineTop = mainHeight * (1 - (high - lowest) / valueOffset) + mainTopMargin;
       double lineBtm = mainHeight * (1 - (low - lowest) / valueOffset) + mainTopMargin;
 
@@ -201,22 +201,22 @@ class KLinePainter extends CustomPainter {
       }
 
       if (close > open) {
-        double candleH = (close - open) / valueOffset * mainHeight;
+        double itemH = (close - open) / valueOffset * mainHeight;
         double rectTop = mainHeight * (1 - (open - lowest) / valueOffset) + mainTopMargin;
-        rectTop -= candleH; // rise starts at the top
-        canvas.drawRect(Rect.fromLTWH(rectLeft + slideOffset, rectTop, candleW, candleH), _riseRectPaint);
+        rectTop -= itemH; // rise starts at the top
+        canvas.drawRect(Rect.fromLTWH(rectLeft + slideOffset, rectTop, itemW, itemH), _riseRectPaint);
         // draw line
         canvas.drawLine(Offset(lineX, lineTop), Offset(lineX, lineBtm), _riseLinePaint);
       } else {
-        double candleH = (open - close) / valueOffset * mainHeight;
+        double itemH = (open - close) / valueOffset * mainHeight;
         double rectTop = mainHeight * (1 - (open - lowest) / valueOffset) + mainTopMargin;
-        canvas.drawRect(Rect.fromLTWH(rectLeft + slideOffset, rectTop, candleW, candleH), _fallRectPaint);
+        canvas.drawRect(Rect.fromLTWH(rectLeft + slideOffset, rectTop, itemW, itemH), _fallRectPaint);
         // draw line
         canvas.drawLine(Offset(lineX, lineTop), Offset(lineX, lineBtm), _fallLinePaint);
       }
       // debugPrint('drawRectLine:idx:${i.round()}, close:$close, centerX:$lineX');
 
-      rectLeft += (candleW + spacing);
+      rectLeft += (itemW + spacing);
     }
 
     drawHighestLowestText(canvas, "$mainHighest", Offset(highestX, highestY), size);
@@ -270,10 +270,10 @@ class KLinePainter extends CustomPainter {
 
   void drawSubIndicatorRulerText(Canvas canvas, double height, double width, double top, double highest, double lowest, Size canvasSize) {
     // draw highest text
-    drawText(canvas, '${highest.toStringAsFixed(2)}', Offset(width - 56, top + KLineController.shared.indicatorInfoHeight), canvasSize, width: 56);
+    drawText(canvas, highest.toStringAsFixed(2), Offset(width - 56, top + KLineController.shared.indicatorInfoHeight), canvasSize, width: 56);
 
     // draw lowest text
-    drawText(canvas, '${lowest.toStringAsFixed(2)}', Offset(width - 56, top + height - 14.0), canvasSize, width: 56);
+    drawText(canvas, lowest.toStringAsFixed(2), Offset(width - 56, top + height - 14.0), canvasSize, width: 56);
   }
 
   /// draw Text in canvas

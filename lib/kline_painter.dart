@@ -43,6 +43,16 @@ class KLinePainter extends CustomPainter {
     ..style = PaintingStyle.stroke
     ..color = Colors.blueGrey.withOpacity(0.2);
 
+  final _currentPricePaint = Paint()
+    ..style = PaintingStyle.stroke
+    ..color = Colors.black54
+    ..isAntiAlias = true;
+
+  final _currentPriceBgPaint = Paint()
+    ..style = PaintingStyle.fill
+    ..color = Colors.white
+    ..isAntiAlias = true;
+
   // draw kline
 
   @override
@@ -266,18 +276,25 @@ class KLinePainter extends CustomPainter {
             top: subTop, lineColors: KLineController.shared.indicatorColors);
       }
     }
+
+    // draw current price
+    double currentPrice = klineData.last.close;
+    double currentPriceRate = (1 - (currentPrice - lowest) / (highest - lowest));
+    currentPriceRate = currentPriceRate > 1 ? 1 : currentPriceRate;
+    currentPriceRate = currentPriceRate < 0 ? 0 : currentPriceRate;
+    drawCurrentPrice(canvas, currentPrice.toString(), Offset(size.width - 56, currentPriceRate * mainHeight));
   }
 
   void drawSubIndicatorRulerText(Canvas canvas, double height, double width, double top, double highest, double lowest, Size canvasSize) {
     // draw highest text
-    drawText(canvas, highest.toStringAsFixed(2), Offset(width - 56, top + KLineController.shared.indicatorInfoHeight), canvasSize, width: 56);
+    drawText(canvas, highest.toStringAsFixed(2), Offset(width - 56, top + KLineController.shared.indicatorInfoHeight), width: 56);
 
     // draw lowest text
-    drawText(canvas, lowest.toStringAsFixed(2), Offset(width - 56, top + height - 14.0), canvasSize, width: 56);
+    drawText(canvas, lowest.toStringAsFixed(2), Offset(width - 56, top + height - 14.0), width: 56);
   }
 
   /// draw Text in canvas
-  void drawText(Canvas canvas, String text, Offset offset, Size canvasSize, {double? width}) {
+  void drawText(Canvas canvas, String text, Offset offset, {double? width}) {
     final painter = TextPainter(
         textDirection: TextDirection.ltr,
         maxLines: 1,
@@ -328,7 +345,21 @@ class KLinePainter extends CustomPainter {
       // draw horizontal line
       if (i > 0) canvas.drawLine(Offset(0, height * i / 4 + top), Offset(width, height * i / 4 + top), _rulerPaint);
       // draw rule text
-      drawText(canvas, '${(highestPrice - priceOffset * i / 4).toStringAsFixed(2)}', Offset(width - 56, scaleHeight * i / 4 + scaleTop - 12), canvasSize, width: 56);
+      drawText(canvas, '${(highestPrice - priceOffset * i / 4).toStringAsFixed(2)}', Offset(width - 56, scaleHeight * i / 4 + scaleTop - 12), width: 56);
+    }
+  }
+
+  void drawCurrentPrice(Canvas canvas, String currentPrice, Offset offset) {
+    canvas.drawRRect(RRect.fromLTRBR(offset.dx - 1, offset.dy - 9, offset.dx + 56, offset.dy + 9, const Radius.circular(4)), _currentPriceBgPaint);
+    canvas.drawRRect(RRect.fromLTRBR(offset.dx - 1, offset.dy - 9, offset.dx + 56, offset.dy + 9, const Radius.circular(4)), _currentPricePaint);
+    drawText(canvas, currentPrice, Offset(offset.dx + 3, offset.dy - 6));
+
+    // 画虚线
+    double startX = 0.0;
+    double dashWidth = 3.0;
+    while (startX < offset.dx - 2) {
+      canvas.drawLine(Offset(startX, offset.dy), Offset(startX + dashWidth, offset.dy), _currentPricePaint);
+      startX += 5.0;
     }
   }
 

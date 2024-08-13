@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:kline/kline_controller.dart';
 import 'package:kline/kline_data.dart';
@@ -105,8 +103,8 @@ class _KLineViewState extends State<KLineView> {
       margin: KLineController.shared.klineMargin,
       child: LayoutBuilder(
         builder: (ctx, constraints) {
-          double containerW = constraints.biggest.width;
-          double containerH = constraints.biggest.height;
+          double containerW = constraints.maxWidth;
+          double containerH = constraints.maxHeight;
 
           int itemCount = KLineController.shared.itemCount;
           double itemW = KLineController.getItemWidth(containerW);

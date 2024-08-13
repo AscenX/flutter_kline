@@ -123,11 +123,11 @@ class KLineController {
 
   List<Color> indicatorColors = [Colors.orange, Colors.purple, Colors.blue];
 
-  static double getItemWidth(double width) {
+  static double getItemWidth(double totalWidth) {
     double spacing = KLineController.shared.spacing;
     int itemCount = KLineController.shared.itemCount;
-    // 蜡烛宽度 = 总宽度 / 蜡烛数 - 蜡烛之间的间距，间距数量和蜡烛数量相等
-    double itemW = width / itemCount - spacing;
+    // item width = total width / item count - spacing
+    double itemW = totalWidth / itemCount - spacing;
     KLineController.shared.itemWidth = itemW;
     return itemW;
   }

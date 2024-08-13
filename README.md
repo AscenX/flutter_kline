@@ -15,8 +15,9 @@
 - ~~WR sub indicator~~
 - ~~OBV indicator~~
 - ~~Y-axis ruler text~~
-- Long press info display
-- Improve accuracy
+- ~~Long press info display~~
+- ~~Improve accuracy~~
+- ~~current price~~
 - Time line Chart
 - Publish to pub.dev
 

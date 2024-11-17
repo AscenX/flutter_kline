@@ -35,6 +35,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool _showTimeChart = false;
 
+  @override
+  initState() {
+    super.initState();
+
+    _loadJson().then((value) {
+      KLineController.shared.data = value;
+      setState(() {});
+    });
+  }
+
   Widget buildIndicator(String name, bool isMain, void Function(String, bool) click) {
     Color c = (isMain ? mainIndicators.contains(name) : subIndicators.contains(name)) ? Colors.blue : Colors.grey;
     return InkWell(
@@ -75,7 +85,14 @@ class _MyHomePageState extends State<MyHomePage> {
     List jsonList = json.decode(jsonStr);
     List<KLineData> dataList = [];
     for (var data in jsonList) {
-      var klineData = KLineData.fromBinanceData(data);
+      var klineData = KLineData()
+      ..open = double.parse(data[1] ?? '0')
+      ..high = double.parse(data[2] ?? '0')
+      ..low = double.parse(data[3] ?? '0')
+      ..close = double.parse(data[4] ?? '0')
+      ..volume = double.parse(data[5] ?? '0')
+      ..time = data[6] ?? 0;
+
       dataList.add(klineData);
     }
     return dataList;
@@ -126,13 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: MediaQuery.of(context).size.width,
                 height: 400,
                 decoration: const BoxDecoration(border: Border.symmetric(horizontal: BorderSide(color: Colors.black))),
-                child: FutureBuilder(
-                    future: _loadJson(),
-                    initialData: const <KLineData>[],
-                    builder: (ctx, snapShot) {
-                      final klineData = snapShot.data as List<KLineData>;
-                      return KLineView(data: klineData);
-                    }))
+                child: KLineView())
           ],
         )) // This trailing comma makes auto-formatting nicer for build methods.
         );

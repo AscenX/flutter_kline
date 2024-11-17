@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:kline/kline_data.dart';
+
 
 enum IndicatorType {
   // main
@@ -42,6 +44,8 @@ class LongPressOffset extends ValueNotifier<Offset> {
 }
 
 class KLineController {
+
+  List<KLineData> data = [];
 
   bool isDebug = false;
   Color randomColor = Color.fromARGB(100, Random().nextInt(255), Random().nextInt(255), Random().nextInt(255));

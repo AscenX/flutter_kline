@@ -32,7 +32,8 @@ dependencies:
   flutter:
     sdk: flutter
 
-  kline_chart: ^0.0.1+1
+  kline_chart:
+    path: '../'
 
 
   # The following adds the Cupertino Icons font to your application.

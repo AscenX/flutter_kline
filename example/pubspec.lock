@@ -78,11 +78,10 @@ packages:
   kline_chart:
     dependency: "direct main"
     description:
-      name: kline_chart
-      sha256: ac491d6a0493b6bc71fcf10e1ff192be16a01bee9cd44830c05547627c340ef5
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.0.1+1"
+      path: ".."
+      relative: true
+    source: path
+    version: "0.0.1+2"
   leak_tracker:
     dependency: transitive
     description:

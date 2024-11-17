@@ -4,7 +4,7 @@
 ### flutter kline chart plugin
 
 #### Demo Gif
-![](https://raw.githubusercontent.com/AscenX/kline_chart/main/examplae/demo.gif)
+![](https://github.com/AscenX/kline_chart/blob/main/example/demo.gif?raw=true)
 
 
 #### Usage

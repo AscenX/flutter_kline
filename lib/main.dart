@@ -33,6 +33,8 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> mainIndicators = KLineController.shared.showMainIndicators.map((e) => e.name).toList();
   List<String> subIndicators = KLineController.shared.showSubIndicators.map((e) => e.name).toList();
 
+  bool _showTimeChart = false;
+
   Widget buildIndicator(String name, bool isMain, void Function(String, bool) click) {
     Color c = (isMain ? mainIndicators.contains(name) : subIndicators.contains(name)) ? Colors.blue : Colors.grey;
     return InkWell(
@@ -106,6 +108,20 @@ class _MyHomePageState extends State<MyHomePage> {
                     return buildIndicator(e.name, e.isMain, clickIndicator);
                   })
                 ])),
+            Container(
+              alignment: Alignment.centerLeft,
+              height: 50,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: InkWell(
+                  onTap: () => setState(() {
+                    _showTimeChart = !_showTimeChart;
+                    KLineController.shared.showTimeChart = _showTimeChart;
+                  }),
+                  child: Text('Time', style: TextStyle(
+                    color: _showTimeChart ? Colors.blue : Colors.grey
+                  ),),
+                )
+            ),
             Container(
                 width: MediaQuery.of(context).size.width,
                 height: 400,

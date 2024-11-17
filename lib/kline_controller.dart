@@ -67,6 +67,8 @@ class KLineController {
   double mainIndicatorInfoMargin = 5.0;
   double subIndicatorInfoMargin = 5.0;
 
+  bool showTimeChart = false;
+
   // info
   /// set null to fix text's width
   double? infoWidgetMaxWidth = 130;

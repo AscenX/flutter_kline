@@ -18,7 +18,7 @@
 - ~~Long press info display~~
 - ~~Improve accuracy~~
 - ~~current price~~
-- Time line Chart
+- ~~Time Chart~~
 - Publish to pub.dev
 
 - Improve scale gesture

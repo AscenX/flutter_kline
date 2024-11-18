@@ -3,9 +3,8 @@
 [![pub package](https://img.shields.io/pub/v/kline_chart?style=flat)](https://pub.dev/packages/kline_chart) [![license](https://img.shields.io/github/license/AscenX/kline_chart?style=flat)](https://github.com/AscenX/kline_chart)
 
 
-#### Demo Gif
+#### Demo
 ![](https://github.com/AscenX/kline_chart/blob/main/example/demo.gif?raw=true)
-
 
 #### Usage
 

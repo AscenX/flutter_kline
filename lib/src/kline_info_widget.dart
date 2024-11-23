@@ -17,7 +17,7 @@ class KlineInfoWidget extends StatelessWidget {
         valueListenable: KLineController.shared.longPressOffset,
         builder: (ctx, offset, child) {
           double offsetX = offset.dx;
-          int index = (offsetX / (ctr.itemWidth + ctr.spacing) + beginIdx).round();
+          int index = (offsetX / (ctr.itemWidth + ctr.spacing) + beginIdx).ceil();
           if (offsetX != 0.0 && index >= 0 && index < klineData.length) {
             KLineData data = klineData[index];
             return Container(

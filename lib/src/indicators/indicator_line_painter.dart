@@ -13,10 +13,10 @@ class IndicatorLinePainter {
 
     double spacing = KLineController.shared.spacing;
     double itemW = KLineController.getItemWidth(width);
-    int itemCount = KLineController.shared.itemCount;
+    double itemCount = KLineController.shared.itemCount;
 
     double valueOffset = maxValue - minValue;
-    double indicatorX = spacing + itemW * 0.5;
+    double indicatorX = -(spacing + itemW * 0.5);
 
     List<String> maInfoList = [];
     for (int idx = 0; idx < periods.length; ++idx) {
@@ -40,31 +40,34 @@ class IndicatorLinePainter {
       double lastX = 0.0;
       double lastValue = 0.0;
 
-      for (var i = beginIdx; i < beginIdx + itemCount; ++i) {
+      for (var i = beginIdx - 1; i < beginIdx + itemCount + 1; ++i) {
         if (dataList[idx].isEmpty) {
           debugPrint('debug:dataList[idx].isEmpty');
           return;
         }
 
-        if ((i - beginIdx).round() >= dataList[idx].length) {
-          debugPrint('debug:range error, type:$type, begin:$beginIdx i: $i index:${(i - beginIdx).round()}, length:${dataList[idx].length}');
+        if ((i - beginIdx).ceil() >= dataList[idx].length) {
+          debugPrint('debug:range error, type:$type, begin:$beginIdx i: $i index:${(i - beginIdx).ceil()}, length:${dataList[idx].length}');
           continue;
         }
+        if (i.ceil() < period) continue;
         if (type != IndicatorType.obv) {
           if (type == IndicatorType.kdj) {
             int firstPeriod = periods.first;
-            if (i.round() < firstPeriod - 1) continue;
+            if (i.ceil() < firstPeriod - 1) continue;
           } else {
-            if (i.round() < period - 1) continue;
+            if (i.ceil() < period - 1) continue;
           }
         }
-        double value = dataList[idx][(i - beginIdx).round()];
+        int index = (i - beginIdx).ceil();
+        index = index < 0 ? 0 : index;
+        double value = dataList[idx][index];
         lastValue = value;
         double indicatorY = drawAreaHeight * (1 - (value - minValue) / valueOffset) + top;
         if (type.isMain) indicatorY += KLineController.shared.mainIndicatorInfoMargin;
         indicatorY += KLineController.shared.indicatorInfoHeight;
 
-        indicatorX = (i - beginIdx) * (itemW + spacing) + itemW * 0.5 + slideOffset;
+        indicatorX = index * (itemW + spacing) - itemW * 0.5 - spacing + slideOffset;
 
         if (lastX == 0.0 && lastY == 0.0) {
           lastX = indicatorX;

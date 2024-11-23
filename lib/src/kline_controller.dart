@@ -55,7 +55,7 @@ class KLineController {
   }
 
   /// current display item count (candle count)
-  int itemCount = 30;
+  double itemCount = 30;
   /// spacing between candle
   double spacing = 2.0;
   /// current item width (candle width)
@@ -63,9 +63,9 @@ class KLineController {
   /// kline view margin
   var klineMargin = const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0);
   /// min candle count
-  int minCount = 7;
+  double minCount = 7;
   /// max candle count
-  int maxCount = 39;
+  double maxCount = 39;
 
   double mainIndicatorInfoMargin = 5.0;
   double subIndicatorInfoMargin = 5.0;
@@ -130,7 +130,7 @@ class KLineController {
 
   static double getItemWidth(double totalWidth) {
     double spacing = KLineController.shared.spacing;
-    int itemCount = KLineController.shared.itemCount;
+    double itemCount = KLineController.shared.itemCount;
     // item width = total width / item count - spacing
     double itemW = totalWidth / itemCount - spacing;
     KLineController.shared.itemWidth = itemW;

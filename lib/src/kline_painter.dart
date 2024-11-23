@@ -86,7 +86,7 @@ class KLinePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (klineData.isEmpty) return;
 
-    debugPrint('debug: kline painter repaint');
+    // debugPrint('debug: kline painter repaint');
 
     bool isTimeChart = KLineController.shared.showTimeChart;
 
@@ -95,7 +95,7 @@ class KLinePainter extends CustomPainter {
 
     double spacing = KLineController.shared.spacing;
     double itemW = KLineController.getItemWidth(size.width);
-    int itemCount = KLineController.shared.itemCount;
+    double itemCount = KLineController.shared.itemCount;
 
     double mainTopMargin = KLineController.shared.klineMargin.top;
     double mainInfoMargin = KLineController.shared.mainIndicatorInfoMargin;
@@ -131,7 +131,7 @@ class KLinePainter extends CustomPainter {
       // debugPrint('debug: beginIdx($beginIdx) >= klineData.length(${klineData.length}) return');
       return;
     }
-    KLineData beginData = klineData[beginIdx.round()];
+    KLineData beginData = klineData[beginIdx.ceil()];
     double highest = beginData.high;
     double lowest = beginData.low;
 
@@ -139,9 +139,11 @@ class KLinePainter extends CustomPainter {
 
     double highestIdx = beginIdx, lowestIdx = beginIdx;
 
-    for (var i = beginIdx; i < beginIdx + itemCount; ++i) {
-      if (i >= klineData.length) return;
-      final data = klineData[i.round()];
+    for (var i = beginIdx - 1; i < beginIdx + itemCount; ++i) {
+      if (i >= klineData.length) continue;
+      int idx = i.ceil();
+      idx = idx < 0 ? 0 : idx;
+      final data = klineData[idx];
       double high = data.high;
       double low = data.low;
       if (high > highest) {
@@ -223,17 +225,20 @@ class KLinePainter extends CustomPainter {
     // offset between the highest and lowest
     double valueOffset = highest - lowest;
 
-    double rectLeft = 0.0;
+    double rectLeft = -(itemW + spacing);
 
     double highestX = 0.0, highestY = 0.0, lowestX = 0.0, lowestY = 0.0;
 
-    double indexOffset = beginIdx - beginIdx.round();
+    double indexOffset = beginIdx - beginIdx.ceil();
     double slideOffset = -indexOffset * (itemW + spacing);
 
     _timeLinePath.reset();
 
-    for (var i = beginIdx; i < beginIdx + itemCount; ++i) {
-      KLineData data = klineData[i.round()];
+    for (var i = beginIdx - 1; i < beginIdx + itemCount; ++i) {
+      if (i >= klineData.length) continue;
+      int idx = i.ceil();
+      idx = idx < 0 ? 0 : idx;
+      KLineData data = klineData[idx];
 
       double open = data.open;
       double high = data.high;
@@ -244,7 +249,7 @@ class KLinePainter extends CustomPainter {
 
       if (isTimeChart) {
         double lastX = i == beginIdx ? 0.0 : rectLeft + itemW * 0.5 + slideOffset - itemW - spacing;
-        double lastY = mainHeight * (1 - (klineData[i.round() - 1].close - lowest) / valueOffset) + mainTopMargin;
+        double lastY = mainHeight * (1 - (klineData[i.ceil() - 1].close - lowest) / valueOffset) + mainTopMargin;
         double timelineY = mainHeight * (1 - (close - lowest) / valueOffset) + mainTopMargin;
         canvas.drawLine(Offset(lastX, lastY), Offset(lineX, timelineY), _timeLinePaint);
 
@@ -256,7 +261,7 @@ class KLinePainter extends CustomPainter {
         } else {
           _timeLinePath.lineTo(lineX, timelineY);
         }
-      } else {
+      } else { // draw candle chart
         double lineTop = mainHeight * (1 - (high - lowest) / valueOffset) + mainTopMargin;
         double lineBtm = mainHeight * (1 - (low - lowest) / valueOffset) + mainTopMargin;
 

@@ -31,7 +31,7 @@ class VolPainter  {
 
     double spacing = KLineController.shared.spacing;
     double itemW = KLineController.getItemWidth(width);
-    int itemCount = KLineController.shared.itemCount;
+    double itemCount = KLineController.shared.itemCount;
 
     double min = 0.0;
     // calculated MA volume
@@ -56,7 +56,7 @@ class VolPainter  {
 
 
     for (var i = beginIdx;i < beginIdx + itemCount;++i) {
-      KLineData data = klineData[i.round()];
+      KLineData data = klineData[i.ceil()];
 
       double open = data.open;
       double close = data.close;

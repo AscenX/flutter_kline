@@ -14,8 +14,8 @@ class KlineLongPressWidget extends StatelessWidget {
     double itemW = KLineController.shared.itemWidth;
     double spacing = KLineController.shared.spacing;
     double itemSpacingWidth = itemW + spacing;
-    int index = (offset.dx / itemSpacingWidth).round();
-    double indexOffset = beginIdx - beginIdx.round();
+    int index = (offset.dx / itemSpacingWidth).ceil();
+    double indexOffset = beginIdx - beginIdx.ceil();
     double slideOffset = -indexOffset * itemSpacingWidth;
     double itemOffsetX = index * itemSpacingWidth + itemW * 0.5 + slideOffset;
     return Offset(itemOffsetX, offset.dy);
@@ -63,6 +63,6 @@ class KLineLongPressPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant KLineLongPressPainter oldDelegate) {
-    return longPressOffset.dx.round() != oldDelegate.longPressOffset.dx.round() || longPressOffset.dy != oldDelegate.longPressOffset.dy;
+    return longPressOffset.dx.ceil() != oldDelegate.longPressOffset.dx.ceil() || longPressOffset.dy != oldDelegate.longPressOffset.dy;
   }
 }

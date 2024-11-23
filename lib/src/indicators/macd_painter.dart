@@ -29,7 +29,7 @@ class MACDPainter  {
 
     double spacing = KLineController.shared.spacing;
     double itemW = KLineController.getItemWidth(width);
-    int itemCount = KLineController.shared.itemCount;
+    double itemCount = KLineController.shared.itemCount;
 
     // 最高最低差
     double valueOffset = max;

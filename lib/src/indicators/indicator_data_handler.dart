@@ -15,23 +15,30 @@ class IndicatorDataHandler {
     List<List<double>> maData = [];
     double max = 0.0;
     double min = 0.0;
-    int itemCount = KLineController.shared.itemCount;
+    double itemCount = KLineController.shared.itemCount;
 
     for (int i = 0; i < periods.length; ++i) {
       List<double> maList = [];
       int period = periods[i];
 
-      for (var j = beginIdx; j < beginIdx + itemCount; ++j) {
-        if (j.round() < period - 1) {
+      for (var j = beginIdx - 1; j < beginIdx + itemCount + 1; ++j) {
+        if (j.ceil() < period - 1) {
           maList.add(-1);
+          continue;
+        }
+        if (j.ceil() >= klineData.length) {
+          debugPrint('debug:range error');
           continue;
         }
 
         // start from the index equals period
         double startIdx = j >= period - 1 ? j - period + 1 : 0;
 
+        int startIndex = (startIdx - 1).ceil();
+        // startIndex = startIndex < 0 ? 0 : startIndex;
+
         List<KLineData> sublist =
-            klineData.sublist(startIdx.round(), (startIdx + period).round());
+            klineData.sublist(startIdx.ceil(), (startIdx + period).ceil());
         if (sublist.isEmpty) {
           debugPrint('debug:sublist.isEmpty');
           continue;
@@ -61,7 +68,7 @@ class IndicatorDataHandler {
     List<List<double>> emaData = [];
     double max = 0.0;
     double min = 0.0;
-    int itemCount = KLineController.shared.itemCount;
+    double itemCount = KLineController.shared.itemCount;
 
     for (var i = 0; i < periods.length; ++i) {
       List<double> emaList = [];
@@ -99,7 +106,7 @@ class IndicatorDataHandler {
 
       double start = beginIdx > 0 ? beginIdx : 0;
       List<double> subList =
-          emaList.sublist(start.round(), start.round() + itemCount);
+          emaList.sublist(start.ceil(), (start + itemCount).ceil());
       emaData.add(subList);
     }
     return IndicatorResult(emaData, max, min);
@@ -142,11 +149,11 @@ class IndicatorDataHandler {
       dnList.add(dn);
     }
 
-    int itemCount = KLineController.shared.itemCount;
+    double itemCount = KLineController.shared.itemCount;
     double start = beginIdx > 0 ? beginIdx : 0;
-    upList = upList.sublist(start.round(), start.round() + itemCount);
-    mbList = mbList.sublist(start.round(), start.round() + itemCount);
-    dnList = dnList.sublist(start.round(), start.round() + itemCount);
+    upList = upList.sublist(start.ceil(), (start + itemCount).ceil());
+    mbList = mbList.sublist(start.ceil(), (start + itemCount).ceil());
+    dnList = dnList.sublist(start.ceil(), (start + itemCount).ceil());
 
     double maxValue = 0.0, minValue = dnList.first;
     for (int i = 0; i < upList.length; ++i) {
@@ -224,7 +231,7 @@ class IndicatorDataHandler {
     double maxValue = 0.0;
     double minValue = 0.0;
 
-    int itemCount = KLineController.shared.itemCount;
+    double itemCount = KLineController.shared.itemCount;
 
     double lastK = 0.0, lastD = 0.0;
     for (int i = 0; i < klineData.length; i++) {
@@ -254,7 +261,7 @@ class IndicatorDataHandler {
       double dValue = (lastD * (period3 - 1) + kValue) / period3;
       double jValue = 3 * kValue - 2 * dValue;
 
-      if (i >= beginIdx.round() && i < (beginIdx + itemCount).round()) {
+      if (i >= beginIdx.ceil() && i < (beginIdx + itemCount).ceil()) {
         if (kValue > maxValue || maxValue == 0.0) maxValue = kValue;
         if (dValue > maxValue) maxValue = dValue;
         if (jValue > maxValue) maxValue = jValue;
@@ -278,7 +285,7 @@ class IndicatorDataHandler {
     if (klineData.isEmpty || periods.isEmpty) return IndicatorResult.empty;
     List<List<double>> dataList = [];
     double max = 0.0, min = 0.0;
-    int itemCount = KLineController.shared.itemCount;
+    double itemCount = KLineController.shared.itemCount;
     for (var idx = 0; idx < periods.length; ++idx) {
       int period = periods[idx];
       List<double> wrList = [];
@@ -286,7 +293,7 @@ class IndicatorDataHandler {
       for (var i = beginIdx; i < beginIdx + itemCount; ++i) {
         double end = i + 1;
         double start = i < period ? 0 : i - period;
-        List<KLineData> sublist = klineData.sublist(start.round(), end.round());
+        List<KLineData> sublist = klineData.sublist(start.ceil(), end.ceil());
         double highest = sublist.first.high;
         double lowest = sublist.first.low;
         for (var j = 1; j < sublist.length; ++j) {
@@ -295,7 +302,7 @@ class IndicatorDataHandler {
           if (subData.high > highest) highest = subData.high;
         }
         double wr =
-            (highest - klineData[i.round()].close) / (highest - lowest) * 100;
+            (highest - klineData[i.ceil()].close) / (highest - lowest) * 100;
         if (wr < min || min == 0.0) min = wr;
         if (wr > max || max == 0.0) max = wr;
         wrList.add(wr);
@@ -310,7 +317,7 @@ class IndicatorDataHandler {
     double obv = 0.0;
     double prevClose = 0.0;
 
-    int itemCount = KLineController.shared.itemCount;
+    double itemCount = KLineController.shared.itemCount;
     double endIndex = beginIdx + itemCount;
     endIndex = endIndex < klineData.length ? endIndex : klineData.length.roundToDouble();
 
@@ -331,7 +338,7 @@ class IndicatorDataHandler {
 
       prevClose = data.close;
 
-      if (i >= beginIdx.round() && i < (beginIdx + itemCount).round()) {
+      if (i >= beginIdx.ceil() && i < (beginIdx + itemCount).ceil()) {
         obvValues.add(obv);
       }
     }
